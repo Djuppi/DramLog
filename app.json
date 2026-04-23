@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "DramLog",
+    "slug": "dramlog",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1a0e00"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.yourname.dramlog",
+      "infoPlist": {
+        "NSCameraUsageDescription": "DramLog needs camera access to scan whisky bottle barcodes.",
+        "NSPhotoLibraryUsageDescription": "DramLog needs photo library access to attach photos to check-ins."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1a0e00"
+      },
+      "package": "com.yourname.dramlog",
+      "permissions": ["CAMERA"]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "DramLog needs camera access to scan whisky bottle barcodes."
+        }
+      ],
+      [
+        "expo-secure-store"
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "your-eas-project-id"
+      }
+    }
+  }
+}
