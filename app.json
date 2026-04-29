@@ -14,9 +14,9 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.yourname.dramlog",
+      "bundleIdentifier": "com.djuppi.dramlog",
       "infoPlist": {
-        "NSCameraUsageDescription": "DramLog needs camera access to scan whisky bottle barcodes.",
+        "NSCameraUsageDescription": "DramLog uses the camera to photograph whisky bottles.",
         "NSPhotoLibraryUsageDescription": "DramLog needs photo library access to attach photos to check-ins."
       }
     },
@@ -25,8 +25,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1a0e00"
       },
-      "package": "com.yourname.dramlog",
-      "permissions": ["CAMERA"]
+      "package": "com.djuppi.dramlog",
+      "permissions": ["android.permission.CAMERA"]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -35,7 +35,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "DramLog needs camera access to scan whisky bottle barcodes."
+          "cameraPermission": "DramLog uses the camera to photograph whisky bottles."
         }
       ],
       [
