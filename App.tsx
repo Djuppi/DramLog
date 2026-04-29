@@ -6,16 +6,23 @@ import { ActivityIndicator, View } from "react-native";
 import { AuthProvider, useAuth } from "./src/context/AuthContext";
 import AppNavigator from "./src/navigation/AppNavigator";
 import AuthNavigator from "./src/navigation/AuthNavigator";
+import AgeGateScreen from "./src/screens/AgeGateScreen";
+import { useAgeGate } from "./src/hooks/useAgeGate";
 
 function RootNavigator() {
   const { session, loading } = useAuth();
+  const { verified, verify } = useAgeGate();
 
-  if (loading) {
+  if (loading || verified === null) {
     return (
       <View style={{ flex: 1, backgroundColor: "#1a0e00", alignItems: "center", justifyContent: "center" }}>
         <ActivityIndicator color="#c8963e" size="large" />
       </View>
     );
+  }
+
+  if (!verified) {
+    return <AgeGateScreen onVerified={verify} />;
   }
 
   return session ? <AppNavigator /> : <AuthNavigator />;
