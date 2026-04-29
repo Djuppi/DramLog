@@ -11,6 +11,7 @@ export interface Whisky {
   country: string | null;
   age: number | null;
   abv: number | null;
+  bottle_size: number | null; // ml
   image_url: string | null;
   slug: string;
   source: string;
@@ -68,6 +69,7 @@ export interface WhiskyInput {
   country?: string;
   age?: number;
   abv?: number;
+  bottle_size?: number;
   image_url?: string;
 }
 

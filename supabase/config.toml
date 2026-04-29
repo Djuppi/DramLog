@@ -44,3 +44,6 @@ verify_jwt = false
 
 [functions.remove-background]
 verify_jwt = false
+
+[functions.identify-bottle]
+verify_jwt = false

@@ -19,6 +19,9 @@ interface Props {
   visible: boolean;
   onCapture: (imageUrl: string) => void;
   onCancel: () => void;
+  /** When provided, fires immediately after capture+resize and skips background removal. */
+  onCaptureRaw?: (base64: string, uri: string) => void;
+  hintText?: string;
 }
 
 type Stage = "camera" | "processing" | "preview";
@@ -75,7 +78,7 @@ function getBottleDimensions(W: number, H: number) {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function BottleCamera({ visible, onCapture, onCancel }: Props) {
+export default function BottleCamera({ visible, onCapture, onCancel, onCaptureRaw, hintText }: Props) {
   const { width: W, height: H } = useWindowDimensions();
   const [permission, requestPermission] = useCameraPermissions();
   const [stage, setStage] = useState<Stage>("camera");
@@ -119,6 +122,13 @@ export default function BottleCamera({ visible, onCapture, onCancel }: Props) {
     if (!base64 || !uri) {
       Alert.alert("Error", "Failed to capture photo");
       setStage("camera");
+      return;
+    }
+
+    if (onCaptureRaw) {
+      setStage("camera");
+      setCapturedUri(null);
+      onCaptureRaw(base64, uri);
       return;
     }
 
@@ -253,7 +263,7 @@ export default function BottleCamera({ visible, onCapture, onCancel }: Props) {
 
         {/* Hint label */}
         <View style={[styles.hintContainer, { top: H * 0.09 }]}>
-          <Text style={styles.hint}>Fit the bottle inside the outline</Text>
+          <Text style={styles.hint}>{hintText ?? "Fit the bottle inside the outline"}</Text>
         </View>
 
         {/* Top bar */}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -10,8 +10,11 @@ import {
 import { CameraView, useCameraPermissions, BarcodeScanningResult } from "expo-camera";
 import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { supabase } from "../lib/supabase";
 import { lookupBarcode } from "../api/barcodes";
-import { ScanStackParamList } from "../navigation/types";
+import { findWhiskyMatch } from "../api/whiskies";
+import BottleCamera from "../components/BottleCamera";
+import { ScanStackParamList, WhiskyPrefill } from "../navigation/types";
 
 type Props = NativeStackScreenProps<ScanStackParamList, "Scanner">;
 
@@ -30,6 +33,8 @@ export default function ScannerScreen({ navigation }: Props) {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanning, setScanning] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [labelCameraOpen, setLabelCameraOpen] = useState(false);
+  const [labelLoading, setLabelLoading] = useState(false);
   const lastScanned = useRef<string | null>(null);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -88,6 +93,51 @@ export default function ScannerScreen({ navigation }: Props) {
     }, 500);
   }
 
+  async function handleLabelCaptured(base64: string) {
+    setLabelLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke<WhiskyPrefill>(
+        "identify-bottle",
+        { body: { imageBase64: base64 } }
+      );
+
+      if (error) {
+        let msg = error.message;
+        try {
+          if ("context" in error) {
+            const body = await (error as any).context.json();
+            msg = body?.error || msg;
+          }
+        } catch {}
+        throw new Error(msg);
+      }
+
+      const prefill = data ?? {};
+
+      // Check if this whisky already exists in the database
+      if (prefill.name && prefill.distillery) {
+        const existing = await findWhiskyMatch(prefill.name, prefill.distillery);
+        if (existing) {
+          navigation.navigate("WhiskyDetail", { whiskyId: existing.id });
+          return;
+        }
+      }
+
+      navigation.navigate("ManualEntry", { prefill });
+    } catch (e: unknown) {
+      Alert.alert(
+        "Couldn't read label",
+        (e as Error).message + "\n\nYou can add the whisky manually.",
+        [
+          { text: "Add Manually", onPress: () => navigation.navigate("ManualEntry", {}) },
+          { text: "Try Again", style: "cancel" },
+        ]
+      );
+    } finally {
+      setLabelLoading(false);
+    }
+  }
+
   if (!permission) {
     return <View style={styles.container} />;
   }
@@ -138,12 +188,38 @@ export default function ScannerScreen({ navigation }: Props) {
         </View>
       </View>
 
-      <TouchableOpacity
-        style={styles.manualButton}
-        onPress={() => navigation.navigate("ManualEntry", {})}
-      >
-        <Text style={styles.manualButtonText}>Add manually</Text>
-      </TouchableOpacity>
+      <View style={styles.bottomRow}>
+        <TouchableOpacity
+          style={styles.bottomButton}
+          onPress={() => setLabelCameraOpen(true)}
+        >
+          <Text style={styles.bottomButtonText}>Scan Label</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.bottomButton}
+          onPress={() => navigation.navigate("ManualEntry", {})}
+        >
+          <Text style={styles.bottomButtonText}>Add manually</Text>
+        </TouchableOpacity>
+      </View>
+
+      {labelLoading && (
+        <View style={styles.labelLoadingOverlay}>
+          <ActivityIndicator color="#c8963e" size="large" />
+          <Text style={styles.labelLoadingText}>Reading label…</Text>
+        </View>
+      )}
+
+      <BottleCamera
+        visible={labelCameraOpen}
+        onCaptureRaw={(base64) => {
+          setLabelCameraOpen(false);
+          handleLabelCaptured(base64);
+        }}
+        onCapture={() => {}}
+        onCancel={() => setLabelCameraOpen(false)}
+        hintText="Point camera at the bottle label"
+      />
     </View>
   );
 }
@@ -207,15 +283,30 @@ const styles = StyleSheet.create({
     borderRightWidth: CORNER_WIDTH,
   },
 
-  manualButton: {
+  bottomRow: {
     position: "absolute",
     bottom: 40,
-    alignSelf: "center",
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 16,
+  },
+  bottomButton: {
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 24,
     borderWidth: 1,
     borderColor: "#c8963e",
   },
-  manualButtonText: { color: "#c8963e", fontSize: 15, fontWeight: "600" },
+  bottomButtonText: { color: "#c8963e", fontSize: 15, fontWeight: "600" },
+
+  labelLoadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.7)",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 16,
+  },
+  labelLoadingText: { color: "#f5e6d0", fontSize: 16, fontWeight: "600" },
 });

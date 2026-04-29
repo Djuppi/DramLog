@@ -20,14 +20,15 @@ import { ScanStackParamList } from "../navigation/types";
 type Props = NativeStackScreenProps<ScanStackParamList, "ManualEntry">;
 
 export default function ManualEntryScreen({ route, navigation }: Props) {
-  const { barcode } = route.params ?? {};
+  const { barcode, prefill } = route.params ?? {};
 
-  const [name, setName] = useState("");
-  const [distillery, setDistillery] = useState("");
-  const [region, setRegion] = useState("");
-  const [country, setCountry] = useState("");
-  const [age, setAge] = useState("");
-  const [abv, setAbv] = useState("");
+  const [name, setName] = useState(prefill?.name ?? "");
+  const [distillery, setDistillery] = useState(prefill?.distillery ?? "");
+  const [region, setRegion] = useState(prefill?.region ?? "");
+  const [country, setCountry] = useState(prefill?.country ?? "");
+  const [age, setAge] = useState(prefill?.age != null ? String(prefill.age) : "");
+  const [abv, setAbv] = useState(prefill?.abv != null ? String(prefill.abv) : "");
+  const [bottleSize, setBottleSize] = useState(prefill?.bottle_size != null ? String(prefill.bottle_size) : "");
   const [imageUrl, setImageUrl] = useState("");
   const [cameraOpen, setCameraOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -40,6 +41,7 @@ export default function ManualEntryScreen({ route, navigation }: Props) {
 
     const ageNum = age ? parseInt(age, 10) : undefined;
     const abvNum = abv ? parseFloat(abv) : undefined;
+    const bottleSizeNum = bottleSize ? parseInt(bottleSize, 10) : undefined;
 
     if (ageNum !== undefined && (isNaN(ageNum) || ageNum < 1 || ageNum > 99)) {
       Alert.alert("Invalid age", "Age must be between 1 and 99 years");
@@ -47,6 +49,10 @@ export default function ManualEntryScreen({ route, navigation }: Props) {
     }
     if (abvNum !== undefined && (isNaN(abvNum) || abvNum <= 0 || abvNum > 100)) {
       Alert.alert("Invalid ABV", "ABV must be between 0 and 100");
+      return;
+    }
+    if (bottleSizeNum !== undefined && (isNaN(bottleSizeNum) || bottleSizeNum < 1)) {
+      Alert.alert("Invalid bottle size", "Enter size in ml, e.g. 700");
       return;
     }
 
@@ -59,6 +65,7 @@ export default function ManualEntryScreen({ route, navigation }: Props) {
         country: country.trim() || undefined,
         age: ageNum,
         abv: abvNum,
+        bottle_size: bottleSizeNum,
         image_url: imageUrl.trim() || undefined,
       });
       navigation.replace("WhiskyDetail", { whiskyId: whisky.id });
@@ -124,6 +131,13 @@ export default function ManualEntryScreen({ route, navigation }: Props) {
             onChange={setAbv}
             placeholder="e.g. 43.0"
             keyboardType="decimal-pad"
+          />
+          <Field
+            label="Bottle Size (ml)"
+            value={bottleSize}
+            onChange={setBottleSize}
+            placeholder="e.g. 700"
+            keyboardType="numeric"
           />
 
           <TouchableOpacity

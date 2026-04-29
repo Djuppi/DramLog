@@ -27,6 +27,19 @@ export async function getWhisky(id: string): Promise<WhiskyWithStats | null> {
   return data as WhiskyWithStats | null;
 }
 
+export async function findWhiskyMatch(name: string, distillery: string): Promise<Whisky | null> {
+  if (!name.trim() || !distillery.trim()) return null;
+  const { data, error } = await supabase
+    .from("whiskies")
+    .select("*")
+    .ilike("name", name.trim())
+    .ilike("distillery", distillery.trim())
+    .is("canonical_id", null)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
 export async function searchWhiskies(query: string, limit = 20): Promise<Whisky[]> {
   const q = query.trim();
   if (!q) return [];

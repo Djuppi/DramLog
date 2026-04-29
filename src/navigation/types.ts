@@ -1,5 +1,15 @@
 import { Whisky } from "../types/database";
 
+export type WhiskyPrefill = {
+  name?: string;
+  distillery?: string;
+  region?: string;
+  country?: string;
+  age?: number;
+  abv?: number;
+  bottle_size?: number;
+};
+
 export type AuthStackParamList = {
   Login: undefined;
   SignUp: undefined;
@@ -15,14 +25,14 @@ export type ScanStackParamList = {
   Scanner: undefined;
   WhiskyDetail: { whiskyId: string };
   CheckIn: { whisky: Whisky; existingCheckinId?: string };
-  ManualEntry: { barcode?: string };
+  ManualEntry: { barcode?: string; prefill?: WhiskyPrefill };
 };
 
 export type SearchStackParamList = {
   Search: undefined;
   WhiskyDetail: { whiskyId: string };
   CheckIn: { whisky: Whisky; existingCheckinId?: string };
-  ManualEntry: { barcode?: string };
+  ManualEntry: { barcode?: string; prefill?: WhiskyPrefill };
 };
 
 export type ProfileStackParamList = {
