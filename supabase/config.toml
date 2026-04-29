@@ -36,5 +36,11 @@ enable_signup = true
 double_confirm_changes = true
 enable_confirmations = false   # set true in production
 
+# verify_jwt = false: the relay only supports HS256 but this project signs JWTs with ES256.
+# Each function does its own auth.getUser() check instead, which calls the auth API
+# and works with any algorithm.
 [functions.barcode-lookup]
-verify_jwt = true
+verify_jwt = false
+
+[functions.remove-background]
+verify_jwt = false

@@ -15,6 +15,7 @@ expo-env.d.ts
 # Supabase local dev
 supabase/.branches/
 supabase/.temp/
+supabase/.env
 
 # macOS
 .DS_Store

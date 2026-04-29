@@ -11,7 +11,8 @@ import {
   Image,
 } from "react-native";
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
-import Svg, { Path, Defs, Mask, Rect } from "react-native-svg";
+import * as ImageManipulator from "expo-image-manipulator";
+import Svg, { Path } from "react-native-svg";
 import { supabase } from "../lib/supabase";
 
 interface Props {
@@ -95,12 +96,20 @@ export default function BottleCamera({ visible, onCapture, onCancel }: Props) {
     let uri: string | undefined;
     try {
       const photo = await cameraRef.current.takePictureAsync({
-        quality: 0.75,
-        base64: true,
+        quality: 0.9,
+        base64: false,
         skipProcessing: false,
       });
-      base64 = photo?.base64;
-      uri = photo?.uri;
+      if (!photo?.uri) throw new Error("No photo captured");
+      uri = photo.uri;
+
+      const resized = await ImageManipulator.manipulateAsync(
+        uri,
+        [{ resize: { width: 1200 } }],
+        { compress: 0.85, format: ImageManipulator.SaveFormat.JPEG, base64: true }
+      );
+      base64 = resized.base64 ?? undefined;
+      uri = resized.uri;
     } catch (e: unknown) {
       Alert.alert("Capture failed", (e as Error).message);
       setStage("camera");
@@ -114,52 +123,65 @@ export default function BottleCamera({ visible, onCapture, onCancel }: Props) {
     }
 
     setCapturedUri(uri);
-    setStage("preview"); // show the captured frame while API processes
+    setStage("preview");
 
+    let bgError: string | undefined;
     try {
       const { data, error } = await supabase.functions.invoke<{ url: string }>(
         "remove-background",
         { body: { imageBase64: base64 } }
       );
 
-      if (error || !data?.url) throw new Error(error?.message ?? "No URL returned");
+      if (error) {
+        let msg = error.message;
+        try {
+          if ("context" in error) {
+            const body = await (error as any).context.json();
+            msg = body?.error || msg;
+          }
+        } catch {}
+        throw new Error(msg);
+      }
+      if (!data?.url) throw new Error("No URL returned from edge function");
 
       onCapture(data.url);
       setStage("camera");
       setCapturedUri(null);
+      return;
     } catch (e: unknown) {
-      Alert.alert(
-        "Background removal failed",
-        `${(e as Error).message}\n\nThe original photo will be used instead.`,
-        [
-          {
-            text: "Use original",
-            onPress: async () => {
-              // Fall back: upload the original JPEG directly
-              if (!base64) { setStage("camera"); return; }
-              try {
-                const bytes = Uint8Array.from(atob(base64!), (c) => c.charCodeAt(0));
-                const filename = `bottles/${crypto.randomUUID()}.jpg`;
-                const { error: uploadErr } = await supabase.storage
-                  .from("whisky-images")
-                  .upload(filename, bytes, { contentType: "image/jpeg" });
-                if (uploadErr) throw uploadErr;
-                const { data: { publicUrl } } = supabase.storage
-                  .from("whisky-images")
-                  .getPublicUrl(filename);
-                onCapture(publicUrl);
-              } catch {
-                // Give up — user can enter URL manually
-              } finally {
-                setStage("camera");
-                setCapturedUri(null);
-              }
-            },
-          },
-          { text: "Retake", onPress: () => { setStage("camera"); setCapturedUri(null); } },
-        ]
-      );
+      bgError = (e as Error).message;
     }
+
+    Alert.alert(
+      "Background removal failed",
+      bgError ?? "Unknown error",
+      [
+        {
+          text: "Use original",
+          onPress: async () => {
+            try {
+              const resp = await fetch(uri!);
+              const blob = await resp.blob();
+              const filename = `bottles/${crypto.randomUUID()}.jpg`;
+              const { error: uploadErr } = await supabase.storage
+                .from("whisky-images")
+                .upload(filename, blob, { contentType: "image/jpeg" });
+              if (uploadErr) throw uploadErr;
+              const { data: { publicUrl } } = supabase.storage
+                .from("whisky-images")
+                .getPublicUrl(filename);
+              onCapture(publicUrl);
+            } catch (uploadErr: unknown) {
+              Alert.alert("Upload failed", (uploadErr as Error).message);
+            } finally {
+              setStage("camera");
+              setCapturedUri(null);
+            }
+          },
+        },
+        { text: "Retake", onPress: () => { setStage("camera"); setCapturedUri(null); } },
+      ]
+    );
   }
 
   if (!visible) return null;
