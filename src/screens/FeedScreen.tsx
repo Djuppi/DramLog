@@ -68,7 +68,7 @@ export default function FeedScreen({ navigation }: Props) {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator color="#c8963e" size="large" />
+        <ActivityIndicator color="#C8963E" size="large" />
       </View>
     );
   }
@@ -98,14 +98,14 @@ export default function FeedScreen({ navigation }: Props) {
         <RefreshControl
           refreshing={refreshing}
           onRefresh={onRefresh}
-          tintColor="#c8963e"
+          tintColor="#C8963E"
         />
       }
       onEndReached={loadMore}
       onEndReachedThreshold={0.3}
       ListFooterComponent={
         loadingMore ? (
-          <ActivityIndicator color="#c8963e" style={styles.moreLoader} />
+          <ActivityIndicator color="#C8963E" style={styles.moreLoader} />
         ) : null
       }
     />
@@ -157,28 +157,33 @@ function CheckinCard({
 }
 
 const styles = StyleSheet.create({
-  list: { flex: 1, backgroundColor: "#1a0e00" },
+  list: { flex: 1, backgroundColor: "#FAF8F5" },
   centered: {
     flex: 1,
-    backgroundColor: "#1a0e00",
+    backgroundColor: "#FAF8F5",
     alignItems: "center",
     justifyContent: "center",
     padding: 32,
   },
   emptyIcon: { fontSize: 56, marginBottom: 16 },
-  emptyTitle: { fontSize: 20, fontWeight: "700", color: "#f5e6d0", marginBottom: 8 },
-  emptyHint: { color: "#a0856a", fontSize: 15, textAlign: "center" },
+  emptyTitle: { fontSize: 20, fontWeight: "700", color: "#1A0E00", marginBottom: 8 },
+  emptyHint: { color: "#7A5C3E", fontSize: 15, textAlign: "center" },
   moreLoader: { padding: 20 },
 
   card: {
     flexDirection: "row",
-    backgroundColor: "#1e1208",
+    backgroundColor: "#FFFFFF",
     marginHorizontal: 16,
     marginVertical: 6,
     borderRadius: 16,
     padding: 14,
     borderWidth: 1,
-    borderColor: "#2a1c0c",
+    borderColor: "#E8DDD0",
+    shadowColor: "#1A0E00",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
   },
   cardLeft: { marginRight: 14 },
   thumb: { width: 60, height: 60, borderRadius: 10 },
@@ -186,25 +191,25 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 10,
-    backgroundColor: "#2a1c0c",
+    backgroundColor: "#F5EFE6",
     alignItems: "center",
     justifyContent: "center",
   },
   thumbEmoji: { fontSize: 28 },
   cardBody: { flex: 1 },
-  cardName: { fontSize: 16, fontWeight: "700", color: "#f5e6d0", marginBottom: 2 },
-  cardDistillery: { fontSize: 13, color: "#c8963e", marginBottom: 6 },
+  cardName: { fontSize: 16, fontWeight: "700", color: "#1A0E00", marginBottom: 2 },
+  cardDistillery: { fontSize: 13, color: "#C8963E", marginBottom: 6 },
   cardMeta: { flexDirection: "row", gap: 8, marginBottom: 4 },
-  cardRating: { fontSize: 15, fontWeight: "800", color: "#c8963e" },
+  cardRating: { fontSize: 15, fontWeight: "800", color: "#C8963E" },
   cardServing: {
     fontSize: 12,
-    color: "#6a5040",
-    backgroundColor: "#2a1c0c",
+    color: "#7A5C3E",
+    backgroundColor: "#F5EFE6",
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 6,
     overflow: "hidden",
   },
-  cardNotes: { fontSize: 13, color: "#a0856a" },
-  cardDate: { fontSize: 12, color: "#6a5040", alignSelf: "flex-start" },
+  cardNotes: { fontSize: 13, color: "#7A5C3E" },
+  cardDate: { fontSize: 12, color: "#B8A090", alignSelf: "flex-start" },
 });

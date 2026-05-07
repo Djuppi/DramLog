@@ -94,7 +94,7 @@ export default function AdminScreen({ navigation }: Props) {
         <TextInput
           style={styles.input}
           placeholder="Filter whiskies…"
-          placeholderTextColor="#6a5040"
+          placeholderTextColor="#B8A090"
           value={search}
           onChangeText={handleSearchChange}
           autoCorrect={false}
@@ -102,7 +102,7 @@ export default function AdminScreen({ navigation }: Props) {
       </View>
 
       {loading ? (
-        <ActivityIndicator color="#c8963e" style={styles.loader} size="large" />
+        <ActivityIndicator color="#C8963E" style={styles.loader} size="large" />
       ) : (
         <FlatList
           data={whiskies}
@@ -124,7 +124,7 @@ export default function AdminScreen({ navigation }: Props) {
           }
           ListFooterComponent={
             loadingMore ? (
-              <ActivityIndicator color="#c8963e" style={styles.loader} />
+              <ActivityIndicator color="#C8963E" style={styles.loader} />
             ) : null
           }
         />
@@ -169,21 +169,21 @@ function WhiskyRow({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#1a0e00" },
+  container: { flex: 1, backgroundColor: "#FAF8F5" },
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#2a1c0c",
+    backgroundColor: "#FFFFFF",
     margin: 16,
     borderRadius: 14,
     paddingHorizontal: 14,
     borderWidth: 1,
-    borderColor: "#4a3020",
+    borderColor: "#E8DDD0",
   },
   searchIcon: { fontSize: 18, marginRight: 8 },
-  input: { flex: 1, height: 48, fontSize: 16, color: "#f5e6d0" },
+  input: { flex: 1, height: 48, fontSize: 16, color: "#1A0E00" },
   loader: { marginTop: 40 },
-  empty: { color: "#6a5040", textAlign: "center", marginTop: 40, fontSize: 15 },
+  empty: { color: "#B8A090", textAlign: "center", marginTop: 40, fontSize: 15 },
 
   row: {
     flexDirection: "row",
@@ -191,34 +191,34 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#2a1c0c",
+    borderBottomColor: "#EDE6DC",
   },
   rowBody: { flex: 1, marginRight: 12 },
-  rowName: { fontSize: 15, fontWeight: "700", color: "#f5e6d0", marginBottom: 2 },
-  rowMeta: { fontSize: 12, color: "#a0856a" },
+  rowName: { fontSize: 15, fontWeight: "700", color: "#1A0E00", marginBottom: 2 },
+  rowMeta: { fontSize: 12, color: "#7A5C3E" },
   mergedBadge: {
     fontSize: 11,
-    color: "#c8963e",
+    color: "#C8963E",
     marginTop: 2,
     fontStyle: "italic",
   },
   actions: { flexDirection: "row", gap: 8 },
   editBtn: {
-    backgroundColor: "#2a1c0c",
+    backgroundColor: "#FDF3E3",
     borderWidth: 1,
-    borderColor: "#c8963e",
+    borderColor: "#C8963E",
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
-  editBtnText: { color: "#c8963e", fontSize: 13, fontWeight: "600" },
+  editBtnText: { color: "#C8963E", fontSize: 13, fontWeight: "600" },
   deleteBtn: {
-    backgroundColor: "#2a1c0c",
+    backgroundColor: "#FFF0F0",
     borderWidth: 1,
-    borderColor: "#7a2020",
+    borderColor: "#D94040",
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
-  deleteBtnText: { color: "#c05050", fontSize: 13, fontWeight: "600" },
+  deleteBtnText: { color: "#D94040", fontSize: 13, fontWeight: "600" },
 });

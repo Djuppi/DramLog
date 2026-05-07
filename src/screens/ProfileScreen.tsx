@@ -67,7 +67,7 @@ export default function ProfileScreen({ navigation }: Props) {
       <Text style={styles.email}>{user?.email}</Text>
 
       {loading ? (
-        <ActivityIndicator color="#c8963e" style={styles.loader} />
+        <ActivityIndicator color="#C8963E" style={styles.loader} />
       ) : stats ? (
         <View style={styles.statsGrid}>
           <StatCard label="Total Drams" value={stats.totalCheckins.toString()} />
@@ -105,19 +105,19 @@ function StatCard({ label, value }: { label: string; value: string }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#1a0e00" },
+  container: { flex: 1, backgroundColor: "#FAF8F5" },
   content: { alignItems: "center", padding: 32 },
   avatar: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: "#c8963e",
+    backgroundColor: "#C8963E",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 12,
   },
   avatarText: { fontSize: 36, fontWeight: "800", color: "#fff" },
-  email: { color: "#a0856a", fontSize: 15, marginBottom: 32 },
+  email: { color: "#7A5C3E", fontSize: 15, marginBottom: 32 },
   loader: { marginVertical: 24 },
   statsGrid: {
     flexDirection: "row",
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   adminButton: {
-    backgroundColor: "#c8963e",
+    backgroundColor: "#C8963E",
     borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 40,
@@ -135,22 +135,24 @@ const styles = StyleSheet.create({
   adminButtonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
   signOutButton: {
     borderWidth: 1,
-    borderColor: "#c8963e",
+    borderColor: "#C8963E",
     borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 40,
   },
-  signOutText: { color: "#c8963e", fontSize: 16, fontWeight: "600" },
+  signOutText: { color: "#C8963E", fontSize: 16, fontWeight: "600" },
 });
 
 const statStyles = StyleSheet.create({
   card: {
     flex: 1,
-    backgroundColor: "#2a1c0c",
+    backgroundColor: "#FFFFFF",
     borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#E8DDD0",
     padding: 16,
     alignItems: "center",
   },
-  value: { fontSize: 24, fontWeight: "800", color: "#c8963e" },
-  label: { fontSize: 11, color: "#6a5040", marginTop: 4, textAlign: "center" },
+  value: { fontSize: 24, fontWeight: "800", color: "#C8963E" },
+  label: { fontSize: 11, color: "#B8A090", marginTop: 4, textAlign: "center" },
 });

@@ -112,7 +112,7 @@ export default function CheckInScreen({ route, navigation }: any) {
           <TextInput
             style={styles.notesInput}
             placeholder="Describe your dram..."
-            placeholderTextColor="#6a5040"
+            placeholderTextColor="#B8A090"
             multiline
             numberOfLines={4}
             value={notes}
@@ -127,7 +127,7 @@ export default function CheckInScreen({ route, navigation }: any) {
           <TextInput
             style={styles.input}
             placeholder="Where are you enjoying this?"
-            placeholderTextColor="#6a5040"
+            placeholderTextColor="#B8A090"
             value={venue}
             onChangeText={setVenue}
           />
@@ -152,23 +152,23 @@ export default function CheckInScreen({ route, navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#1a0e00" },
+  container: { flex: 1, backgroundColor: "#FAF8F5" },
   content: { padding: 24, paddingBottom: 48 },
 
   whiskyHeader: {
     marginBottom: 32,
     paddingBottom: 24,
     borderBottomWidth: 1,
-    borderBottomColor: "#2a1c0c",
+    borderBottomColor: "#EDE6DC",
   },
-  whiskyName: { fontSize: 22, fontWeight: "800", color: "#f5e6d0" },
-  whiskyDistillery: { fontSize: 16, color: "#c8963e", marginTop: 4 },
+  whiskyName: { fontSize: 22, fontWeight: "800", color: "#1A0E00" },
+  whiskyDistillery: { fontSize: 16, color: "#C8963E", marginTop: 4 },
 
   section: { marginBottom: 28 },
   sectionTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#f5e6d0",
+    color: "#1A0E00",
     marginBottom: 12,
   },
 
@@ -178,38 +178,38 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#4a3020",
-    backgroundColor: "#2a1c0c",
+    borderColor: "#E8DDD0",
+    backgroundColor: "#FFFFFF",
   },
-  servingChipActive: { backgroundColor: "#c8963e", borderColor: "#c8963e" },
-  servingChipText: { color: "#a0856a", fontSize: 14 },
+  servingChipActive: { backgroundColor: "#C8963E", borderColor: "#C8963E" },
+  servingChipText: { color: "#7A5C3E", fontSize: 14 },
   servingChipTextActive: { color: "#fff", fontWeight: "600" },
 
   notesInput: {
-    backgroundColor: "#2a1c0c",
-    borderColor: "#4a3020",
+    backgroundColor: "#FFFFFF",
+    borderColor: "#E8DDD0",
     borderWidth: 1,
     borderRadius: 12,
     padding: 14,
     fontSize: 15,
-    color: "#f5e6d0",
+    color: "#1A0E00",
     minHeight: 100,
     textAlignVertical: "top",
   },
-  charCount: { color: "#6a5040", fontSize: 12, marginTop: 4, textAlign: "right" },
+  charCount: { color: "#B8A090", fontSize: 12, marginTop: 4, textAlign: "right" },
 
   input: {
-    backgroundColor: "#2a1c0c",
-    borderColor: "#4a3020",
+    backgroundColor: "#FFFFFF",
+    borderColor: "#E8DDD0",
     borderWidth: 1,
     borderRadius: 12,
     padding: 14,
     fontSize: 15,
-    color: "#f5e6d0",
+    color: "#1A0E00",
   },
 
   submitButton: {
-    backgroundColor: "#c8963e",
+    backgroundColor: "#C8963E",
     borderRadius: 14,
     padding: 18,
     alignItems: "center",

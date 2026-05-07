@@ -187,7 +187,7 @@ function Field({
         value={value}
         onChangeText={onChange}
         placeholder={placeholder}
-        placeholderTextColor="#6a5040"
+        placeholderTextColor="#B8A090"
         keyboardType={keyboardType}
       />
     </View>
@@ -195,48 +195,48 @@ function Field({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#1a0e00" },
+  container: { flex: 1, backgroundColor: "#FAF8F5" },
   content: { padding: 24, paddingBottom: 48 },
   barcodeBadge: {
-    backgroundColor: "#2a1c0c",
+    backgroundColor: "#F5EFE6",
     borderRadius: 8,
     padding: 10,
     marginBottom: 24,
   },
-  barcodeBadgeText: { color: "#a0856a", fontSize: 13 },
+  barcodeBadgeText: { color: "#7A5C3E", fontSize: 13 },
 
   photoSection: { marginBottom: 28 },
   photoBtn: {
-    backgroundColor: "#2a1c0c",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "#4a3020",
+    borderColor: "#E8DDD0",
     borderRadius: 14,
     padding: 24,
     alignItems: "center",
     gap: 6,
   },
   photoBtnIcon: { fontSize: 32, marginBottom: 4 },
-  photoBtnText: { color: "#f5e6d0", fontSize: 16, fontWeight: "600" },
-  photoBtnHint: { color: "#6a5040", fontSize: 12 },
+  photoBtnText: { color: "#1A0E00", fontSize: 16, fontWeight: "600" },
+  photoBtnHint: { color: "#B8A090", fontSize: 12 },
 
   previewWrapper: { alignItems: "center", gap: 12 },
   preview: {
     width: 160,
     height: 280,
     borderRadius: 12,
-    backgroundColor: "#2a1c0c",
+    backgroundColor: "#F5EFE6",
   },
   retakeBtn: {
     borderWidth: 1,
-    borderColor: "#c8963e",
+    borderColor: "#C8963E",
     borderRadius: 8,
     paddingHorizontal: 20,
     paddingVertical: 8,
   },
-  retakeBtnText: { color: "#c8963e", fontSize: 14, fontWeight: "600" },
+  retakeBtnText: { color: "#C8963E", fontSize: 14, fontWeight: "600" },
 
   button: {
-    backgroundColor: "#c8963e",
+    backgroundColor: "#C8963E",
     borderRadius: 14,
     padding: 18,
     alignItems: "center",
@@ -248,14 +248,14 @@ const styles = StyleSheet.create({
 
 const fieldStyles = StyleSheet.create({
   container: { marginBottom: 20 },
-  label: { color: "#a0856a", fontSize: 14, marginBottom: 8, fontWeight: "600" },
+  label: { color: "#7A5C3E", fontSize: 14, marginBottom: 8, fontWeight: "600" },
   input: {
-    backgroundColor: "#2a1c0c",
-    borderColor: "#4a3020",
+    backgroundColor: "#FFFFFF",
+    borderColor: "#E8DDD0",
     borderWidth: 1,
     borderRadius: 12,
     padding: 14,
     fontSize: 15,
-    color: "#f5e6d0",
+    color: "#1A0E00",
   },
 });

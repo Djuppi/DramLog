@@ -28,10 +28,10 @@ const SearchStack = createNativeStackNavigator<SearchStackParamList>();
 const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
 
 const screenOptions = {
-  headerStyle: { backgroundColor: "#1a0e00" },
-  headerTintColor: "#c8963e",
-  headerTitleStyle: { fontWeight: "700" as const },
-  contentStyle: { backgroundColor: "#1a0e00" },
+  headerStyle: { backgroundColor: "#FAF8F5" },
+  headerTintColor: "#C8963E",
+  headerTitleStyle: { fontWeight: "700" as const, color: "#1A0E00" },
+  contentStyle: { backgroundColor: "#FAF8F5" },
 };
 
 function FeedNav() {
@@ -84,7 +84,7 @@ function TabIcon({ label, focused }: { label: string; focused: boolean }) {
     ProfileTab: "👤",
   };
   return (
-    <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.5 }}>{icons[label]}</Text>
+    <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.45 }}>{icons[label]}</Text>
   );
 }
 
@@ -94,12 +94,12 @@ export default function AppNavigator() {
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: "#1a0e00",
-          borderTopColor: "#3a2010",
+          backgroundColor: "#FFFFFF",
+          borderTopColor: "#E8DDD0",
           paddingBottom: 4,
         },
-        tabBarActiveTintColor: "#c8963e",
-        tabBarInactiveTintColor: "#6a5040",
+        tabBarActiveTintColor: "#C8963E",
+        tabBarInactiveTintColor: "#B8A090",
         tabBarIcon: ({ focused }) => (
           <TabIcon label={route.name} focused={focused} />
         ),

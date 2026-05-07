@@ -60,7 +60,7 @@ export default function WhiskyDetailScreen({ route, navigation }: any) {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator color="#c8963e" size="large" />
+        <ActivityIndicator color="#C8963E" size="large" />
       </View>
     );
   }
@@ -155,34 +155,36 @@ function StatBox({ label, value }: { label: string; value: string }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#1a0e00" },
+  container: { flex: 1, backgroundColor: "#FAF8F5" },
   content: { paddingBottom: 40 },
-  centered: { flex: 1, backgroundColor: "#1a0e00", alignItems: "center", justifyContent: "center" },
-  errorText: { color: "#f5e6d0" },
+  centered: { flex: 1, backgroundColor: "#FAF8F5", alignItems: "center", justifyContent: "center" },
+  errorText: { color: "#1A0E00" },
   image: { width: "100%", height: 260 },
   imagePlaceholder: {
     width: "100%",
     height: 200,
-    backgroundColor: "#2a1c0c",
+    backgroundColor: "#F5EFE6",
     alignItems: "center",
     justifyContent: "center",
   },
   imagePlaceholderText: { fontSize: 64 },
   header: { padding: 20 },
-  name: { fontSize: 26, fontWeight: "800", color: "#f5e6d0", marginBottom: 4 },
-  distillery: { fontSize: 18, color: "#c8963e", marginBottom: 16 },
+  name: { fontSize: 26, fontWeight: "800", color: "#1A0E00", marginBottom: 4 },
+  distillery: { fontSize: 18, color: "#C8963E", marginBottom: 16 },
   tags: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   statsRow: {
     flexDirection: "row",
     marginHorizontal: 20,
     marginBottom: 20,
-    backgroundColor: "#2a1c0c",
+    backgroundColor: "#FFFFFF",
     borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#E8DDD0",
     overflow: "hidden",
   },
   checkInButton: {
     marginHorizontal: 20,
-    backgroundColor: "#c8963e",
+    backgroundColor: "#C8963E",
     borderRadius: 14,
     padding: 16,
     alignItems: "center",
@@ -193,7 +195,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#f5e6d0",
+    color: "#1A0E00",
     marginBottom: 12,
   },
   checkinRow: {
@@ -202,26 +204,26 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#2a1c0c",
+    borderBottomColor: "#EDE6DC",
   },
   checkinLeft: { flex: 1, marginRight: 8 },
-  checkinRating: { fontSize: 20, fontWeight: "800", color: "#c8963e", marginBottom: 2 },
-  checkinNotes: { color: "#a0856a", fontSize: 14 },
-  checkinDate: { color: "#6a5040", fontSize: 13 },
+  checkinRating: { fontSize: 20, fontWeight: "800", color: "#C8963E", marginBottom: 2 },
+  checkinNotes: { color: "#7A5C3E", fontSize: 14 },
+  checkinDate: { color: "#B8A090", fontSize: 13 },
 });
 
 const tagStyles = StyleSheet.create({
   container: {
-    backgroundColor: "#2a1c0c",
+    backgroundColor: "#F5EFE6",
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 4,
   },
-  text: { color: "#a0856a", fontSize: 13 },
+  text: { color: "#7A5C3E", fontSize: 13 },
 });
 
 const statStyles = StyleSheet.create({
   box: { flex: 1, alignItems: "center", paddingVertical: 16 },
-  value: { fontSize: 22, fontWeight: "800", color: "#c8963e" },
-  label: { fontSize: 12, color: "#6a5040", marginTop: 2 },
+  value: { fontSize: 22, fontWeight: "800", color: "#C8963E" },
+  label: { fontSize: 12, color: "#B8A090", marginTop: 2 },
 });

@@ -52,13 +52,13 @@ export default function SearchScreen({ navigation }: Props) {
         <TextInput
           style={styles.input}
           placeholder="Search whiskies…"
-          placeholderTextColor="#6a5040"
+          placeholderTextColor="#B8A090"
           value={query}
           onChangeText={handleQueryChange}
           returnKeyType="search"
           autoCorrect={false}
         />
-        {loading && <ActivityIndicator color="#c8963e" style={styles.loader} />}
+        {loading && <ActivityIndicator color="#C8963E" style={styles.loader} />}
       </View>
 
       {searched && results.length === 0 && !loading && (
@@ -113,39 +113,39 @@ function WhiskyRow({ whisky, onPress }: { whisky: Whisky; onPress: () => void })
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#1a0e00" },
+  container: { flex: 1, backgroundColor: "#FAF8F5" },
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#2a1c0c",
+    backgroundColor: "#FFFFFF",
     margin: 16,
     borderRadius: 14,
     paddingHorizontal: 14,
     borderWidth: 1,
-    borderColor: "#4a3020",
+    borderColor: "#E8DDD0",
   },
   searchIcon: { fontSize: 18, marginRight: 8 },
-  input: { flex: 1, height: 48, fontSize: 16, color: "#f5e6d0" },
+  input: { flex: 1, height: 48, fontSize: 16, color: "#1A0E00" },
   loader: { marginLeft: 8 },
   list: { paddingBottom: 32 },
   centered: { padding: 32, alignItems: "center" },
-  emptyText: { color: "#a0856a", fontSize: 16 },
+  emptyText: { color: "#7A5C3E", fontSize: 16 },
   addButton: {
     marginTop: 16,
     borderWidth: 1,
-    borderColor: "#c8963e",
+    borderColor: "#C8963E",
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 20,
   },
-  addButtonText: { color: "#c8963e", fontSize: 15, fontWeight: "600" },
+  addButtonText: { color: "#C8963E", fontSize: 15, fontWeight: "600" },
 
   row: {
     flexDirection: "row",
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#2a1c0c",
+    borderBottomColor: "#EDE6DC",
     alignItems: "center",
   },
   thumb: { width: 52, height: 52, borderRadius: 8, marginRight: 14 },
@@ -153,19 +153,19 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 8,
-    backgroundColor: "#2a1c0c",
+    backgroundColor: "#F5EFE6",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
   },
   rowBody: { flex: 1 },
-  rowName: { fontSize: 16, fontWeight: "700", color: "#f5e6d0", marginBottom: 2 },
-  rowDistillery: { fontSize: 13, color: "#c8963e", marginBottom: 6 },
+  rowName: { fontSize: 16, fontWeight: "700", color: "#1A0E00", marginBottom: 2 },
+  rowDistillery: { fontSize: 13, color: "#C8963E", marginBottom: 6 },
   rowMeta: { flexDirection: "row", gap: 6 },
   metaTag: {
     fontSize: 12,
-    color: "#6a5040",
-    backgroundColor: "#2a1c0c",
+    color: "#7A5C3E",
+    backgroundColor: "#F5EFE6",
     paddingHorizontal: 7,
     paddingVertical: 2,
     borderRadius: 5,

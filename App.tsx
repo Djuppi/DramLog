@@ -15,7 +15,7 @@ function RootNavigator() {
 
   if (loading || verified === null) {
     return (
-      <View style={{ flex: 1, backgroundColor: "#1a0e00", alignItems: "center", justifyContent: "center" }}>
+      <View style={{ flex: 1, backgroundColor: "#FAF8F5", alignItems: "center", justifyContent: "center" }}>
         <ActivityIndicator color="#c8963e" size="large" />
       </View>
     );
@@ -32,7 +32,7 @@ export default function App() {
   return (
     <AuthProvider>
       <NavigationContainer>
-        <StatusBar style="light" />
+        <StatusBar style="dark" />
         <RootNavigator />
       </NavigationContainer>
     </AuthProvider>

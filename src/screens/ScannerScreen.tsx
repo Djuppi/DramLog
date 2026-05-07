@@ -232,19 +232,19 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000" },
   permissionContainer: {
     flex: 1,
-    backgroundColor: "#1a0e00",
+    backgroundColor: "#FAF8F5",
     alignItems: "center",
     justifyContent: "center",
     padding: 32,
   },
   permissionText: {
-    color: "#f5e6d0",
+    color: "#1A0E00",
     fontSize: 16,
     textAlign: "center",
     marginBottom: 24,
   },
   button: {
-    backgroundColor: "#c8963e",
+    backgroundColor: "#C8963E",
     borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 28,

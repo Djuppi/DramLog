@@ -35,8 +35,8 @@ export default function RatingSlider({ value, onChange }: Props) {
 }
 
 const styles = StyleSheet.create({
-  label: { color: "#a0856a", fontSize: 14, marginBottom: 12 },
-  value: { color: "#c8963e", fontWeight: "700" },
+  label: { color: "#7A5C3E", fontSize: 14, marginBottom: 12 },
+  value: { color: "#C8963E", fontWeight: "700" },
   track: {
     flexDirection: "row",
     height: 36,
@@ -46,14 +46,14 @@ const styles = StyleSheet.create({
   },
   segment: {
     flex: 1,
-    backgroundColor: "#2a1c0c",
+    backgroundColor: "#F5EFE6",
     borderRadius: 3,
   },
-  segmentFilled: { backgroundColor: "#c8963e" },
+  segmentFilled: { backgroundColor: "#C8963E" },
   labels: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 6,
   },
-  trackLabel: { color: "#6a5040", fontSize: 12 },
+  trackLabel: { color: "#B8A090", fontSize: 12 },
 });

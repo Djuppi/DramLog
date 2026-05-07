@@ -124,7 +124,7 @@ export default function AgeGateScreen({ onVerified }: Props) {
               value={day}
               onChangeText={handleDay}
               placeholder="DD"
-              placeholderTextColor="#6a5040"
+              placeholderTextColor="#B8A090"
               keyboardType="number-pad"
               maxLength={2}
               returnKeyType="next"
@@ -142,7 +142,7 @@ export default function AgeGateScreen({ onVerified }: Props) {
               value={month}
               onChangeText={handleMonth}
               placeholder="MM"
-              placeholderTextColor="#6a5040"
+              placeholderTextColor="#B8A090"
               keyboardType="number-pad"
               maxLength={2}
               returnKeyType="next"
@@ -160,7 +160,7 @@ export default function AgeGateScreen({ onVerified }: Props) {
               value={year}
               onChangeText={handleYear}
               placeholder="YYYY"
-              placeholderTextColor="#6a5040"
+              placeholderTextColor="#B8A090"
               keyboardType="number-pad"
               maxLength={4}
               returnKeyType="done"
@@ -189,7 +189,7 @@ export default function AgeGateScreen({ onVerified }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#1a0e00" },
+  container: { flex: 1, backgroundColor: "#FAF8F5" },
   scroll: {
     flexGrow: 1,
     alignItems: "center",
@@ -199,13 +199,13 @@ const styles = StyleSheet.create({
   },
 
   logo:    { width: 120, height: 120, borderRadius: 24, marginBottom: 16 },
-  appName: { color: "#f5e6d0", fontSize: 32, fontWeight: "700", letterSpacing: 1 },
+  appName: { color: "#1A0E00", fontSize: 32, fontWeight: "700", letterSpacing: 1 },
   tagline: { color: "#c8963e", fontSize: 15, marginBottom: 28, opacity: 0.85 },
 
   divider: {
     width: "60%",
     height: 1,
-    backgroundColor: "#3a2010",
+    backgroundColor: "#EDE6DC",
     marginBottom: 28,
   },
 
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   body: {
-    color: "#a0856a",
+    color: "#7A5C3E",
     fontSize: 15,
     textAlign: "center",
     lineHeight: 22,
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
   },
 
   dobLabel: {
-    color: "#a0856a",
+    color: "#7A5C3E",
     fontSize: 13,
     fontWeight: "600",
     alignSelf: "flex-start",
@@ -240,19 +240,19 @@ const styles = StyleSheet.create({
   dobField: { alignItems: "center", flex: 2 },
   dobFieldYear: { flex: 3 },
   dobInput: {
-    backgroundColor: "#2a1c0c",
-    borderColor: "#4a3020",
+    backgroundColor: "#FFFFFF",
+    borderColor: "#E8DDD0",
     borderWidth: 1,
     borderRadius: 12,
     padding: 14,
     fontSize: 18,
-    color: "#f5e6d0",
+    color: "#1A0E00",
     textAlign: "center",
     width: "100%",
   },
-  dobFieldLabel: { color: "#6a5040", fontSize: 11, marginTop: 6 },
+  dobFieldLabel: { color: "#B8A090", fontSize: 11, marginTop: 6 },
   dobSep: {
-    color: "#6a5040",
+    color: "#B8A090",
     fontSize: 24,
     paddingTop: 12,
     paddingHorizontal: 6,
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
   btnText: { color: "#fff", fontSize: 16, fontWeight: "700" },
 
   disclaimer: {
-    color: "#4a3020",
+    color: "#E8DDD0",
     fontSize: 12,
     textAlign: "center",
     lineHeight: 18,
@@ -287,14 +287,14 @@ const styles = StyleSheet.create({
 
   // underage
   sorryTitle: {
-    color: "#f5e6d0",
+    color: "#1A0E00",
     fontSize: 28,
     fontWeight: "700",
     marginTop: 24,
     marginBottom: 12,
   },
   sorryBody: {
-    color: "#a0856a",
+    color: "#7A5C3E",
     fontSize: 16,
     textAlign: "center",
     lineHeight: 24,

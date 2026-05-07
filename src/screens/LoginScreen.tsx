@@ -49,7 +49,7 @@ export default function LoginScreen({ navigation }: Props) {
         <TextInput
           style={styles.input}
           placeholder="Email"
-          placeholderTextColor="#8a8a8a"
+          placeholderTextColor="#B8A090"
           autoCapitalize="none"
           keyboardType="email-address"
           value={email}
@@ -58,7 +58,7 @@ export default function LoginScreen({ navigation }: Props) {
         <TextInput
           style={styles.input}
           placeholder="Password"
-          placeholderTextColor="#8a8a8a"
+          placeholderTextColor="#B8A090"
           secureTextEntry
           value={password}
           onChangeText={setPassword}
@@ -88,7 +88,7 @@ export default function LoginScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#1a0e00" },
+  container: { flex: 1, backgroundColor: "#FAF8F5" },
   inner: {
     flex: 1,
     justifyContent: "center",
@@ -97,29 +97,29 @@ const styles = StyleSheet.create({
   logo: {
     fontSize: 40,
     fontWeight: "800",
-    color: "#c8963e",
+    color: "#C8963E",
     textAlign: "center",
     marginBottom: 8,
     letterSpacing: 1,
   },
   tagline: {
     fontSize: 16,
-    color: "#a0856a",
+    color: "#7A5C3E",
     textAlign: "center",
     marginBottom: 48,
   },
   input: {
-    backgroundColor: "#2a1c0c",
-    borderColor: "#4a3020",
+    backgroundColor: "#FFFFFF",
+    borderColor: "#E8DDD0",
     borderWidth: 1,
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: "#f5e6d0",
+    color: "#1A0E00",
     marginBottom: 16,
   },
   button: {
-    backgroundColor: "#c8963e",
+    backgroundColor: "#C8963E",
     borderRadius: 12,
     padding: 16,
     alignItems: "center",
@@ -127,5 +127,5 @@ const styles = StyleSheet.create({
   },
   buttonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
   linkButton: { marginTop: 24, alignItems: "center" },
-  linkText: { color: "#a0856a", fontSize: 14 },
+  linkText: { color: "#7A5C3E", fontSize: 14 },
 });
