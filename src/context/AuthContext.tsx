@@ -12,6 +12,7 @@ interface AuthContextValue {
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   signInWithApple: () => Promise<void>;
+  signInWithGoogle: (idToken: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -67,9 +68,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error;
   }
 
+  async function signInWithGoogle(idToken: string) {
+    const { error } = await supabase.auth.signInWithIdToken({
+      provider: "google",
+      token: idToken,
+    });
+    if (error) throw error;
+  }
+
   return (
     <AuthContext.Provider
-      value={{ session, user: session?.user ?? null, loading, signIn, signUp, signOut, signInWithApple }}
+      value={{ session, user: session?.user ?? null, loading, signIn, signUp, signOut, signInWithApple, signInWithGoogle }}
     >
       {children}
     </AuthContext.Provider>

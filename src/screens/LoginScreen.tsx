@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,18 +11,48 @@ import {
   Alert,
 } from "react-native";
 import * as AppleAuthentication from "expo-apple-authentication";
+import * as Google from "expo-auth-session/providers/google";
+import * as WebBrowser from "expo-web-browser";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useAuth } from "../context/AuthContext";
 import { AuthStackParamList } from "../navigation/types";
+import {
+  GOOGLE_WEB_CLIENT_ID,
+  GOOGLE_IOS_CLIENT_ID,
+  GOOGLE_ANDROID_CLIENT_ID,
+} from "../config/oauth";
+
+WebBrowser.maybeCompleteAuthSession();
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
 export default function LoginScreen({ navigation }: Props) {
-  const { signIn, signInWithApple } = useAuth();
+  const { signIn, signInWithApple, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [appleLoading, setAppleLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  const [, googleResponse, googlePromptAsync] = Google.useIdTokenAuthRequest({
+    webClientId: GOOGLE_WEB_CLIENT_ID,
+    iosClientId: GOOGLE_IOS_CLIENT_ID,
+    androidClientId: GOOGLE_ANDROID_CLIENT_ID,
+  });
+
+  useEffect(() => {
+    if (googleResponse?.type === "success") {
+      const idToken = googleResponse.params.id_token;
+      if (idToken) {
+        setGoogleLoading(true);
+        signInWithGoogle(idToken)
+          .catch((e: unknown) => Alert.alert("Google Sign-In failed", (e as Error).message))
+          .finally(() => setGoogleLoading(false));
+      }
+    } else if (googleResponse?.type === "error") {
+      Alert.alert("Google Sign-In failed", googleResponse.error?.message ?? "Unknown error");
+    }
+  }, [googleResponse]);
 
   async function handleSignIn() {
     if (!email || !password) {
@@ -99,28 +129,40 @@ export default function LoginScreen({ navigation }: Props) {
           )}
         </TouchableOpacity>
 
-        {Platform.OS === "ios" && (
-          <>
-            <View style={styles.dividerRow}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>or</Text>
-              <View style={styles.dividerLine} />
-            </View>
+        <View style={styles.dividerRow}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>or</Text>
+          <View style={styles.dividerLine} />
+        </View>
 
-            {appleLoading ? (
-              <View style={styles.appleLoadingContainer}>
-                <ActivityIndicator color="#1A0E00" />
-              </View>
+        {Platform.OS === "ios" && (
+          appleLoading ? (
+            <View style={styles.socialLoadingContainer}>
+              <ActivityIndicator color="#1A0E00" />
+            </View>
+          ) : (
+            <AppleAuthentication.AppleAuthenticationButton
+              buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+              buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+              cornerRadius={12}
+              style={styles.appleButton}
+              onPress={handleAppleSignIn}
+            />
+          )
+        )}
+
+        {Platform.OS === "android" && (
+          <TouchableOpacity
+            style={[styles.googleButton, googleLoading && styles.buttonDisabled]}
+            onPress={() => googlePromptAsync()}
+            disabled={googleLoading}
+          >
+            {googleLoading ? (
+              <ActivityIndicator color="#1A0E00" />
             ) : (
-              <AppleAuthentication.AppleAuthenticationButton
-                buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-                buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-                cornerRadius={12}
-                style={styles.appleButton}
-                onPress={handleAppleSignIn}
-              />
+              <Text style={styles.googleButtonText}>Continue with Google</Text>
             )}
-          </>
+          </TouchableOpacity>
         )}
 
         <TouchableOpacity
@@ -185,11 +227,20 @@ const styles = StyleSheet.create({
   dividerLine: { flex: 1, height: 1, backgroundColor: "#E8DDD0" },
   dividerText: { color: "#B8A090", fontSize: 13 },
   appleButton: { width: "100%", height: 50 },
-  appleLoadingContainer: {
+  socialLoadingContainer: {
     height: 50,
     alignItems: "center",
     justifyContent: "center",
   },
+  googleButton: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    padding: 16,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#E8DDD0",
+  },
+  googleButtonText: { color: "#1A0E00", fontSize: 16, fontWeight: "600" },
   linkButton: { marginTop: 24, alignItems: "center" },
   linkText: { color: "#7A5C3E", fontSize: 14 },
 });
