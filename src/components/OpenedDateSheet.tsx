@@ -13,6 +13,7 @@ import {
 
 interface Props {
   visible: boolean;
+  title?: string;
   onConfirm: (date: Date, isToday: boolean) => void;
   onCancel: () => void;
 }
@@ -34,7 +35,7 @@ function daysAgoDate(days: number): Date {
   return d;
 }
 
-export default function OpenedDateSheet({ visible, onConfirm, onCancel }: Props) {
+export default function OpenedDateSheet({ visible, title = "When did you open this bottle?", onConfirm, onCancel }: Props) {
   const [day, setDay] = useState("");
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
@@ -97,7 +98,7 @@ export default function OpenedDateSheet({ visible, onConfirm, onCancel }: Props)
         <TouchableOpacity style={styles.backdropArea} activeOpacity={1} onPress={handleCancel} />
         <View style={styles.sheet}>
           <View style={styles.handle} />
-          <Text style={styles.title}>When did you open this bottle?</Text>
+          <Text style={styles.title}>{title}</Text>
 
           <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
             <View style={styles.badgeGrid}>

@@ -8,10 +8,11 @@ import {
   ActivityIndicator,
   RefreshControl,
   Image,
+  Alert,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { getMyCheckins } from "../api/checkins";
+import { getMyCheckins, deleteCheckin } from "../api/checkins";
 import { CheckinWithWhisky } from "../types/database";
 import { FeedStackParamList } from "../navigation/types";
 
@@ -50,6 +51,35 @@ export default function FeedScreen({ navigation }: Props) {
     } finally {
       setRefreshing(false);
     }
+  }
+
+  function handleEdit(checkin: CheckinWithWhisky) {
+    navigation.navigate("CheckIn", {
+      whisky: checkin.whisky,
+      existingCheckin: checkin,
+    });
+  }
+
+  function handleDelete(checkin: CheckinWithWhisky) {
+    Alert.alert(
+      "Delete Check-in",
+      `Remove your check-in for ${checkin.whisky.name}?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteCheckin(checkin.id);
+              setCheckins((prev) => prev.filter((c) => c.id !== checkin.id));
+            } catch (e: unknown) {
+              Alert.alert("Error", (e as Error).message);
+            }
+          },
+        },
+      ]
+    );
   }
 
   async function loadMore() {
@@ -92,6 +122,8 @@ export default function FeedScreen({ navigation }: Props) {
         <CheckinCard
           checkin={item}
           onPress={() => navigation.navigate("WhiskyDetail", { whiskyId: item.whisky_id })}
+          onEdit={() => handleEdit(item)}
+          onDelete={() => handleDelete(item)}
         />
       )}
       refreshControl={
@@ -115,11 +147,24 @@ export default function FeedScreen({ navigation }: Props) {
 function CheckinCard({
   checkin,
   onPress,
+  onEdit,
+  onDelete,
 }: {
   checkin: CheckinWithWhisky;
   onPress: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
 }) {
   const w = checkin.whisky;
+
+  function showOptions() {
+    Alert.alert(checkin.whisky.name, undefined, [
+      { text: "Edit Check-in", onPress: onEdit },
+      { text: "Delete Check-in", style: "destructive", onPress: onDelete },
+      { text: "Cancel", style: "cancel" },
+    ]);
+  }
+
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
       <View style={styles.cardLeft}>
@@ -146,12 +191,21 @@ function CheckinCard({
           <Text style={styles.cardNotes} numberOfLines={2}>{checkin.notes}</Text>
         ) : null}
       </View>
-      <Text style={styles.cardDate}>
-        {new Date(checkin.created_at).toLocaleDateString("en-GB", {
-          day: "numeric",
-          month: "short",
-        })}
-      </Text>
+      <View style={styles.cardRight}>
+        <Text style={styles.cardDate}>
+          {new Date(checkin.created_at).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+          })}
+        </Text>
+        <TouchableOpacity
+          onPress={showOptions}
+          hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
+          style={styles.optionsBtn}
+        >
+          <Text style={styles.optionsBtnText}>•••</Text>
+        </TouchableOpacity>
+      </View>
     </TouchableOpacity>
   );
 }
@@ -211,5 +265,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   cardNotes: { fontSize: 13, color: "#7A5C3E" },
-  cardDate: { fontSize: 12, color: "#B8A090", alignSelf: "flex-start" },
+  cardRight: { alignItems: "flex-end", justifyContent: "space-between" },
+  cardDate: { fontSize: 12, color: "#B8A090" },
+  optionsBtn: { marginTop: 8 },
+  optionsBtnText: { fontSize: 16, color: "#B8A090", letterSpacing: 1 },
 });

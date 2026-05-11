@@ -128,7 +128,11 @@ export default function ProfileScreen({ navigation }: Props) {
             </View>
           ) : (
             collection.map((entry) => (
-              <CollectionRow key={entry.id} entry={entry} />
+              <CollectionRow
+                key={entry.id}
+                entry={entry}
+                onPress={() => navigation.navigate("WhiskyDetail", { whiskyId: entry.whisky_id })}
+              />
             ))
           )}
         </View>
@@ -180,10 +184,10 @@ export default function ProfileScreen({ navigation }: Props) {
   );
 }
 
-function CollectionRow({ entry }: { entry: CollectionWithWhisky }) {
-  const { whisky, opened_at, added_at } = entry;
+function CollectionRow({ entry, onPress }: { entry: CollectionWithWhisky; onPress: () => void }) {
+  const { whisky, opened_at } = entry;
   return (
-    <View style={rowStyles.container}>
+    <TouchableOpacity style={rowStyles.container} onPress={onPress} activeOpacity={0.8}>
       {whisky.image_url ? (
         <Image source={{ uri: whisky.image_url }} style={rowStyles.thumb} />
       ) : (
@@ -212,7 +216,7 @@ function CollectionRow({ entry }: { entry: CollectionWithWhisky }) {
           <Text style={rowStyles.unopened}>Unopened</Text>
         )}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 

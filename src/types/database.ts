@@ -86,6 +86,7 @@ export interface CollectionEntry {
   user_id: string;
   whisky_id: string;
   opened_at: string | null;
+  emptied_at: string | null;
   added_at: string;
 }
 

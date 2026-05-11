@@ -18,13 +18,15 @@ import {
   addToCollection,
   removeFromCollection,
   setOpenedDate,
+  markAsEmptied,
 } from "../api/collection";
 import { WhiskyWithStats, CheckinWithWhisky, CollectionEntry } from "../types/database";
 import OpenedDateSheet from "../components/OpenedDateSheet";
 
 type Props =
   | NativeStackScreenProps<import("../navigation/types").FeedStackParamList, "WhiskyDetail">
-  | NativeStackScreenProps<import("../navigation/types").SearchStackParamList, "WhiskyDetail">;
+  | NativeStackScreenProps<import("../navigation/types").SearchStackParamList, "WhiskyDetail">
+  | NativeStackScreenProps<import("../navigation/types").ProfileStackParamList, "WhiskyDetail">;
 
 export default function WhiskyDetailScreen({ route, navigation }: any) {
   const { whiskyId } = route.params as { whiskyId: string };
@@ -34,7 +36,7 @@ export default function WhiskyDetailScreen({ route, navigation }: any) {
   const [loading, setLoading] = useState(true);
   const [collectionEntry, setCollectionEntry] = useState<CollectionEntry | null>(null);
   const [collectionLoading, setCollectionLoading] = useState(false);
-  const [dateSheetVisible, setDateSheetVisible] = useState(false);
+  const [dateSheetMode, setDateSheetMode] = useState<"opened" | "emptied" | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -105,15 +107,34 @@ export default function WhiskyDetailScreen({ route, navigation }: any) {
     );
   }
 
-  async function handleOpenedDateConfirm(date: Date, isToday: boolean) {
+  async function handleDateConfirm(date: Date, isToday: boolean) {
     if (!collectionEntry || !whisky) return;
-    setDateSheetVisible(false);
+    const mode = dateSheetMode;
+    setDateSheetMode(null);
     setCollectionLoading(true);
     try {
-      const updated = await setOpenedDate(collectionEntry.id, date);
-      setCollectionEntry(updated);
-      if (isToday) {
-        navigation.navigate("CheckIn", { whisky });
+      if (mode === "opened") {
+        const updated = await setOpenedDate(collectionEntry.id, date);
+        setCollectionEntry(updated);
+        if (isToday) navigation.navigate("CheckIn", { whisky });
+      } else {
+        const updated = await markAsEmptied(collectionEntry.id, date);
+        setCollectionEntry(updated);
+        Alert.alert(
+          "Bottle finished!",
+          "Would you like to remove it from your collection?",
+          [
+            { text: "Keep it", style: "cancel" },
+            {
+              text: "Remove",
+              style: "destructive",
+              onPress: async () => {
+                await removeFromCollection(updated.id);
+                setCollectionEntry(null);
+              },
+            },
+          ]
+        );
       }
     } catch (e: unknown) {
       Alert.alert("Error", (e as Error).message);
@@ -198,16 +219,37 @@ export default function WhiskyDetailScreen({ route, navigation }: any) {
                   <Text style={styles.openedDate}>
                     {new Date(collectionEntry.opened_at).toLocaleDateString()}
                   </Text>
-                  <TouchableOpacity onPress={() => setDateSheetVisible(true)}>
+                  <TouchableOpacity onPress={() => setDateSheetMode("opened")}>
                     <Text style={styles.changeLink}>Change</Text>
                   </TouchableOpacity>
                 </View>
               ) : (
                 <TouchableOpacity
                   style={styles.markOpenedBtn}
-                  onPress={() => setDateSheetVisible(true)}
+                  onPress={() => setDateSheetMode("opened")}
                 >
                   <Text style={styles.markOpenedBtnText}>Mark as Opened</Text>
+                </TouchableOpacity>
+              )}
+
+              <View style={styles.divider} />
+
+              {collectionEntry.emptied_at ? (
+                <View style={styles.openedRow}>
+                  <Text style={styles.openedLabel}>Finished</Text>
+                  <Text style={styles.openedDate}>
+                    {new Date(collectionEntry.emptied_at).toLocaleDateString()}
+                  </Text>
+                  <TouchableOpacity onPress={() => setDateSheetMode("emptied")}>
+                    <Text style={styles.changeLink}>Change</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  style={styles.markOpenedBtn}
+                  onPress={() => setDateSheetMode("emptied")}
+                >
+                  <Text style={styles.markOpenedBtnText}>Finish Bottle</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -243,9 +285,14 @@ export default function WhiskyDetailScreen({ route, navigation }: any) {
       </ScrollView>
 
       <OpenedDateSheet
-        visible={dateSheetVisible}
-        onConfirm={handleOpenedDateConfirm}
-        onCancel={() => setDateSheetVisible(false)}
+        visible={dateSheetMode !== null}
+        title={
+          dateSheetMode === "emptied"
+            ? "When did you finish this bottle?"
+            : "When did you open this bottle?"
+        }
+        onConfirm={handleDateConfirm}
+        onCancel={() => setDateSheetMode(null)}
       />
     </>
   );
@@ -347,6 +394,7 @@ const styles = StyleSheet.create({
   openedDate: { color: "#1A0E00", fontSize: 14, fontWeight: "600", flex: 1 },
   changeLink: { color: "#C8963E", fontSize: 13, fontWeight: "600" },
 
+  divider: { height: 1, backgroundColor: "#F0E8DF", marginVertical: 10 },
   markOpenedBtn: {
     borderWidth: 1,
     borderColor: "#E8DDD0",

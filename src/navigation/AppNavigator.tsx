@@ -58,6 +58,8 @@ function ProfileNav() {
       <ProfileStack.Screen name="Profile" component={ProfileScreen} options={{ title: "Profile" }} />
       <ProfileStack.Screen name="Admin" component={AdminScreen} options={{ title: "Admin Panel" }} />
       <ProfileStack.Screen name="EditWhisky" component={EditWhiskyScreen} options={{ title: "Edit Whisky" }} />
+      <ProfileStack.Screen name="WhiskyDetail" component={WhiskyDetailScreen} options={{ title: "" }} />
+      <ProfileStack.Screen name="CheckIn" component={CheckInScreen} options={{ title: "Log Check-in" }} />
     </ProfileStack.Navigator>
   );
 }

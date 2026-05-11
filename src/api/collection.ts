@@ -63,6 +63,17 @@ export async function setOpenedDate(entryId: string, date: Date): Promise<Collec
   return data;
 }
 
+export async function markAsEmptied(entryId: string, date: Date): Promise<CollectionEntry> {
+  const { data, error } = await supabase
+    .from("collection")
+    .update({ emptied_at: date.toISOString() })
+    .eq("id", entryId)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
 export async function getCollectionCount(): Promise<number> {
   const { count, error } = await supabase
     .from("collection")

@@ -1,4 +1,4 @@
-import { Whisky } from "../types/database";
+import { Whisky, Checkin } from "../types/database";
 
 export type WhiskyPrefill = {
   name?: string;
@@ -18,13 +18,13 @@ export type AuthStackParamList = {
 export type FeedStackParamList = {
   Feed: undefined;
   WhiskyDetail: { whiskyId: string };
-  CheckIn: { whisky: Whisky; existingCheckinId?: string };
+  CheckIn: { whisky: Pick<Whisky, 'id' | 'name' | 'distillery'>; existingCheckin?: Checkin };
 };
 
 export type SearchStackParamList = {
   Search: undefined;
   WhiskyDetail: { whiskyId: string };
-  CheckIn: { whisky: Whisky; existingCheckinId?: string };
+  CheckIn: { whisky: Pick<Whisky, 'id' | 'name' | 'distillery'>; existingCheckin?: Checkin };
   ManualEntry: { barcode?: string; prefill?: WhiskyPrefill };
 };
 
@@ -32,6 +32,8 @@ export type ProfileStackParamList = {
   Profile: undefined;
   Admin: undefined;
   EditWhisky: { whiskyId: string };
+  WhiskyDetail: { whiskyId: string };
+  CheckIn: { whisky: Pick<Whisky, 'id' | 'name' | 'distillery'>; existingCheckin?: Checkin };
 };
 
 export type AppTabParamList = {

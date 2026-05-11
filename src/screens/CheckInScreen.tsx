@@ -14,7 +14,7 @@ import {
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { createCheckin, updateCheckin } from "../api/checkins";
 import RatingSlider from "../components/RatingSlider";
-import { ServingStyle } from "../types/database";
+import { Checkin, ServingStyle } from "../types/database";
 
 type Props = NativeStackScreenProps<
   import("../navigation/types").FeedStackParamList,
@@ -30,15 +30,17 @@ const SERVING_STYLES: { value: ServingStyle; label: string }[] = [
 ];
 
 export default function CheckInScreen({ route, navigation }: any) {
-  const { whisky, existingCheckinId } = route.params as {
-    whisky: import("../types/database").Whisky;
-    existingCheckinId?: string;
+  const { whisky, existingCheckin } = route.params as {
+    whisky: { id: string; name: string; distillery: string };
+    existingCheckin?: Checkin;
   };
 
-  const [rating, setRating] = useState(0);
-  const [notes, setNotes] = useState("");
-  const [serving, setServing] = useState<ServingStyle | undefined>(undefined);
-  const [venue, setVenue] = useState("");
+  const [rating, setRating] = useState(existingCheckin?.rating ?? 0);
+  const [notes, setNotes] = useState(existingCheckin?.notes ?? "");
+  const [serving, setServing] = useState<ServingStyle | undefined>(
+    existingCheckin?.serving_style ?? undefined
+  );
+  const [venue, setVenue] = useState(existingCheckin?.venue ?? "");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit() {
@@ -52,8 +54,8 @@ export default function CheckInScreen({ route, navigation }: any) {
         venue: venue.trim() || undefined,
       };
 
-      if (existingCheckinId) {
-        await updateCheckin(existingCheckinId, input);
+      if (existingCheckin) {
+        await updateCheckin(existingCheckin.id, input);
       } else {
         await createCheckin(input);
       }
@@ -142,7 +144,7 @@ export default function CheckInScreen({ route, navigation }: any) {
             <ActivityIndicator color="#fff" />
           ) : (
             <Text style={styles.submitButtonText}>
-              {existingCheckinId ? "Update Check-in" : "Log Check-in"}
+              {existingCheckin ? "Update Check-in" : "Log Check-in"}
             </Text>
           )}
         </TouchableOpacity>
