@@ -17,6 +17,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.djuppi.dramlog",
+      "usesAppleSignIn": true,
       "infoPlist": {
         "NSCameraUsageDescription": "DramLog uses the camera to photograph whisky bottles.",
         "NSPhotoLibraryUsageDescription": "DramLog needs photo library access to attach photos to check-ins."
@@ -45,6 +46,9 @@
       ],
       [
         "expo-secure-store"
+      ],
+      [
+        "expo-apple-authentication"
       ]
     ],
     "extra": {

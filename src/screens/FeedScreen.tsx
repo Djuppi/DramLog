@@ -108,7 +108,7 @@ export default function FeedScreen({ navigation }: Props) {
       <View style={styles.centered}>
         <Text style={styles.emptyIcon}>🥃</Text>
         <Text style={styles.emptyTitle}>No drams logged yet</Text>
-        <Text style={styles.emptyHint}>Scan a bottle or search to get started</Text>
+        <Text style={styles.emptyHint}>Search for a whisky to get started</Text>
       </View>
     );
   }

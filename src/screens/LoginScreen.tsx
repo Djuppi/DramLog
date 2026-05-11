@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
+import * as AppleAuthentication from "expo-apple-authentication";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useAuth } from "../context/AuthContext";
 import { AuthStackParamList } from "../navigation/types";
@@ -17,10 +18,11 @@ import { AuthStackParamList } from "../navigation/types";
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
 export default function LoginScreen({ navigation }: Props) {
-  const { signIn } = useAuth();
+  const { signIn, signInWithApple } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [appleLoading, setAppleLoading] = useState(false);
 
   async function handleSignIn() {
     if (!email || !password) {
@@ -34,6 +36,20 @@ export default function LoginScreen({ navigation }: Props) {
       Alert.alert("Sign in failed", (e as Error).message);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleAppleSignIn() {
+    setAppleLoading(true);
+    try {
+      await signInWithApple();
+    } catch (e: unknown) {
+      const err = e as Error;
+      if (!err.message.includes("canceled")) {
+        Alert.alert("Apple Sign-In failed", err.message);
+      }
+    } finally {
+      setAppleLoading(false);
     }
   }
 
@@ -65,7 +81,14 @@ export default function LoginScreen({ navigation }: Props) {
         />
 
         <TouchableOpacity
-          style={styles.button}
+          style={styles.forgotLink}
+          onPress={() => navigation.navigate("ForgotPassword")}
+        >
+          <Text style={styles.forgotText}>Forgot password?</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.button, loading && styles.buttonDisabled]}
           onPress={handleSignIn}
           disabled={loading}
         >
@@ -75,6 +98,30 @@ export default function LoginScreen({ navigation }: Props) {
             <Text style={styles.buttonText}>Sign In</Text>
           )}
         </TouchableOpacity>
+
+        {Platform.OS === "ios" && (
+          <>
+            <View style={styles.dividerRow}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>or</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            {appleLoading ? (
+              <View style={styles.appleLoadingContainer}>
+                <ActivityIndicator color="#1A0E00" />
+              </View>
+            ) : (
+              <AppleAuthentication.AppleAuthenticationButton
+                buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+                buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+                cornerRadius={12}
+                style={styles.appleButton}
+                onPress={handleAppleSignIn}
+              />
+            )}
+          </>
+        )}
 
         <TouchableOpacity
           style={styles.linkButton}
@@ -118,6 +165,8 @@ const styles = StyleSheet.create({
     color: "#1A0E00",
     marginBottom: 16,
   },
+  forgotLink: { alignSelf: "flex-end", marginBottom: 8 },
+  forgotText: { color: "#C8963E", fontSize: 13 },
   button: {
     backgroundColor: "#C8963E",
     borderRadius: 12,
@@ -125,7 +174,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 8,
   },
+  buttonDisabled: { opacity: 0.6 },
   buttonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
+  dividerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 20,
+    gap: 12,
+  },
+  dividerLine: { flex: 1, height: 1, backgroundColor: "#E8DDD0" },
+  dividerText: { color: "#B8A090", fontSize: 13 },
+  appleButton: { width: "100%", height: 50 },
+  appleLoadingContainer: {
+    height: 50,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   linkButton: { marginTop: 24, alignItems: "center" },
   linkText: { color: "#7A5C3E", fontSize: 14 },
 });
