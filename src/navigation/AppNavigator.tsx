@@ -6,13 +6,11 @@ import { Text } from "react-native";
 import {
   AppTabParamList,
   FeedStackParamList,
-  ScanStackParamList,
   SearchStackParamList,
   ProfileStackParamList,
 } from "./types";
 
 import FeedScreen from "../screens/FeedScreen";
-import ScannerScreen from "../screens/ScannerScreen";
 import SearchScreen from "../screens/SearchScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import WhiskyDetailScreen from "../screens/WhiskyDetailScreen";
@@ -23,7 +21,6 @@ import EditWhiskyScreen from "../screens/EditWhiskyScreen";
 
 const Tab = createBottomTabNavigator<AppTabParamList>();
 const FeedStack = createNativeStackNavigator<FeedStackParamList>();
-const ScanStack = createNativeStackNavigator<ScanStackParamList>();
 const SearchStack = createNativeStackNavigator<SearchStackParamList>();
 const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
 
@@ -41,17 +38,6 @@ function FeedNav() {
       <FeedStack.Screen name="WhiskyDetail" component={WhiskyDetailScreen} options={{ title: "" }} />
       <FeedStack.Screen name="CheckIn" component={CheckInScreen} options={{ title: "Log Check-in" }} />
     </FeedStack.Navigator>
-  );
-}
-
-function ScanNav() {
-  return (
-    <ScanStack.Navigator screenOptions={screenOptions}>
-      <ScanStack.Screen name="Scanner" component={ScannerScreen} options={{ title: "Scan Bottle" }} />
-      <ScanStack.Screen name="WhiskyDetail" component={WhiskyDetailScreen} options={{ title: "" }} />
-      <ScanStack.Screen name="CheckIn" component={CheckInScreen} options={{ title: "Log Check-in" }} />
-      <ScanStack.Screen name="ManualEntry" component={ManualEntryScreen} options={{ title: "Add Whisky" }} />
-    </ScanStack.Navigator>
   );
 }
 
@@ -79,7 +65,6 @@ function ProfileNav() {
 function TabIcon({ label, focused }: { label: string; focused: boolean }) {
   const icons: Record<string, string> = {
     FeedTab: "🥃",
-    ScanTab: "📷",
     SearchTab: "🔍",
     ProfileTab: "👤",
   };
@@ -106,7 +91,6 @@ export default function AppNavigator() {
       })}
     >
       <Tab.Screen name="FeedTab" component={FeedNav} options={{ title: "Feed" }} />
-      <Tab.Screen name="ScanTab" component={ScanNav} options={{ title: "Scan" }} />
       <Tab.Screen name="SearchTab" component={SearchNav} options={{ title: "Search" }} />
       <Tab.Screen name="ProfileTab" component={ProfileNav} options={{ title: "Profile" }} />
     </Tab.Navigator>

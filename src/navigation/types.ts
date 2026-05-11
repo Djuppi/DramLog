@@ -21,13 +21,6 @@ export type FeedStackParamList = {
   CheckIn: { whisky: Whisky; existingCheckinId?: string };
 };
 
-export type ScanStackParamList = {
-  Scanner: undefined;
-  WhiskyDetail: { whiskyId: string };
-  CheckIn: { whisky: Whisky; existingCheckinId?: string };
-  ManualEntry: { barcode?: string; prefill?: WhiskyPrefill };
-};
-
 export type SearchStackParamList = {
   Search: undefined;
   WhiskyDetail: { whiskyId: string };
@@ -43,7 +36,6 @@ export type ProfileStackParamList = {
 
 export type AppTabParamList = {
   FeedTab: undefined;
-  ScanTab: undefined;
   SearchTab: undefined;
   ProfileTab: undefined;
 };

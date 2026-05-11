@@ -17,7 +17,7 @@ import RatingSlider from "../components/RatingSlider";
 import { ServingStyle } from "../types/database";
 
 type Props = NativeStackScreenProps<
-  import("../navigation/types").ScanStackParamList,
+  import("../navigation/types").FeedStackParamList,
   "CheckIn"
 >;
 

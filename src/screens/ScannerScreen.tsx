@@ -14,9 +14,9 @@ import { supabase } from "../lib/supabase";
 import { lookupBarcode } from "../api/barcodes";
 import { findWhiskyMatch } from "../api/whiskies";
 import BottleCamera from "../components/BottleCamera";
-import { ScanStackParamList, WhiskyPrefill } from "../navigation/types";
+import { SearchStackParamList, WhiskyPrefill } from "../navigation/types";
 
-type Props = NativeStackScreenProps<ScanStackParamList, "Scanner">;
+type Props = NativeStackScreenProps<SearchStackParamList, "Search">;
 
 // EAN-13 check digit validation on device before calling the edge function
 function isValidEan(barcode: string): boolean {

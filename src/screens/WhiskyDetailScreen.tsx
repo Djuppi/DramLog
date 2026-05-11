@@ -13,12 +13,17 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useFocusEffect } from "@react-navigation/native";
 import { getWhisky } from "../api/whiskies";
 import { getWhiskyCheckins, hasTriedWhisky } from "../api/checkins";
-import { WhiskyWithStats } from "../types/database";
-import { CheckinWithWhisky } from "../types/database";
+import {
+  getCollectionEntry,
+  addToCollection,
+  removeFromCollection,
+  setOpenedDate,
+} from "../api/collection";
+import { WhiskyWithStats, CheckinWithWhisky, CollectionEntry } from "../types/database";
+import OpenedDateSheet from "../components/OpenedDateSheet";
 
 type Props =
   | NativeStackScreenProps<import("../navigation/types").FeedStackParamList, "WhiskyDetail">
-  | NativeStackScreenProps<import("../navigation/types").ScanStackParamList, "WhiskyDetail">
   | NativeStackScreenProps<import("../navigation/types").SearchStackParamList, "WhiskyDetail">;
 
 export default function WhiskyDetailScreen({ route, navigation }: any) {
@@ -27,6 +32,9 @@ export default function WhiskyDetailScreen({ route, navigation }: any) {
   const [recentCheckins, setRecentCheckins] = useState<CheckinWithWhisky[]>([]);
   const [tried, setTried] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [collectionEntry, setCollectionEntry] = useState<CollectionEntry | null>(null);
+  const [collectionLoading, setCollectionLoading] = useState(false);
+  const [dateSheetVisible, setDateSheetVisible] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -37,14 +45,16 @@ export default function WhiskyDetailScreen({ route, navigation }: any) {
   async function loadData() {
     setLoading(true);
     try {
-      const [w, checkins, hasTried] = await Promise.all([
+      const [w, checkins, hasTried, entry] = await Promise.all([
         getWhisky(whiskyId),
         getWhiskyCheckins(whiskyId, 5),
         hasTriedWhisky(whiskyId),
+        getCollectionEntry(whiskyId),
       ]);
       setWhisky(w);
       setRecentCheckins(checkins);
       setTried(hasTried);
+      setCollectionEntry(entry);
     } catch (e: unknown) {
       Alert.alert("Error", (e as Error).message);
     } finally {
@@ -55,6 +65,61 @@ export default function WhiskyDetailScreen({ route, navigation }: any) {
   function handleCheckIn() {
     if (!whisky) return;
     navigation.navigate("CheckIn", { whisky });
+  }
+
+  async function handleAddToCollection() {
+    setCollectionLoading(true);
+    try {
+      const entry = await addToCollection(whiskyId);
+      setCollectionEntry(entry);
+    } catch (e: unknown) {
+      Alert.alert("Error", (e as Error).message);
+    } finally {
+      setCollectionLoading(false);
+    }
+  }
+
+  async function handleRemoveFromCollection() {
+    if (!collectionEntry) return;
+    Alert.alert(
+      "Remove from collection?",
+      "This will remove the bottle and its opening date.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Remove",
+          style: "destructive",
+          onPress: async () => {
+            setCollectionLoading(true);
+            try {
+              await removeFromCollection(collectionEntry.id);
+              setCollectionEntry(null);
+            } catch (e: unknown) {
+              Alert.alert("Error", (e as Error).message);
+            } finally {
+              setCollectionLoading(false);
+            }
+          },
+        },
+      ]
+    );
+  }
+
+  async function handleOpenedDateConfirm(date: Date, isToday: boolean) {
+    if (!collectionEntry || !whisky) return;
+    setDateSheetVisible(false);
+    setCollectionLoading(true);
+    try {
+      const updated = await setOpenedDate(collectionEntry.id, date);
+      setCollectionEntry(updated);
+      if (isToday) {
+        navigation.navigate("CheckIn", { whisky });
+      }
+    } catch (e: unknown) {
+      Alert.alert("Error", (e as Error).message);
+    } finally {
+      setCollectionLoading(false);
+    }
   }
 
   if (loading) {
@@ -76,64 +141,113 @@ export default function WhiskyDetailScreen({ route, navigation }: any) {
   const stats = whisky.stats;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {whisky.image_url ? (
-        <Image source={{ uri: whisky.image_url }} style={styles.image} resizeMode="cover" />
-      ) : (
-        <View style={styles.imagePlaceholder}>
-          <Text style={styles.imagePlaceholderText}>🥃</Text>
+    <>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        {whisky.image_url ? (
+          <Image source={{ uri: whisky.image_url }} style={styles.image} resizeMode="cover" />
+        ) : (
+          <View style={styles.imagePlaceholder}>
+            <Text style={styles.imagePlaceholderText}>🥃</Text>
+          </View>
+        )}
+
+        <View style={styles.header}>
+          <Text style={styles.name}>{whisky.name}</Text>
+          <Text style={styles.distillery}>{whisky.distillery}</Text>
+
+          <View style={styles.tags}>
+            {whisky.region && <Tag label={whisky.region} />}
+            {whisky.country && <Tag label={whisky.country} />}
+            {whisky.age ? <Tag label={`${whisky.age}yr`} /> : <Tag label="NAS" />}
+            {whisky.abv && <Tag label={`${whisky.abv}% ABV`} />}
+          </View>
         </View>
-      )}
 
-      <View style={styles.header}>
-        <Text style={styles.name}>{whisky.name}</Text>
-        <Text style={styles.distillery}>{whisky.distillery}</Text>
+        {stats && (
+          <View style={styles.statsRow}>
+            <StatBox label="Avg Rating" value={stats.avg_rating ? stats.avg_rating.toString() : "—"} />
+            <StatBox label="Check-ins" value={stats?.checkin_count?.toString() ?? "—"} />
+            <StatBox label="Tasters" value={stats?.unique_tasters?.toString() ?? "—"} />
+          </View>
+        )}
 
-        <View style={styles.tags}>
-          {whisky.region && <Tag label={whisky.region} />}
-          {whisky.country && <Tag label={whisky.country} />}
-          {whisky.age ? <Tag label={`${whisky.age}yr`} /> : <Tag label="NAS" />}
-          {whisky.abv && <Tag label={`${whisky.abv}% ABV`} />}
-        </View>
-      </View>
+        <TouchableOpacity style={styles.checkInButton} onPress={handleCheckIn}>
+          <Text style={styles.checkInButtonText}>
+            {tried ? "Log Another Dram" : "Check-in Dram"}
+          </Text>
+        </TouchableOpacity>
 
-      {stats && (
-        <View style={styles.statsRow}>
-          <StatBox label="Avg Rating" value={stats.avg_rating ? stats.avg_rating.toString() : "—"} />
-          <StatBox label="Check-ins" value={stats?.checkin_count?.toString() ?? "—"} />
-          <StatBox label="Tasters" value={stats?.unique_tasters?.toString() ?? "—"} />
-        </View>
-      )}
-
-      <TouchableOpacity style={styles.checkInButton} onPress={handleCheckIn}>
-        <Text style={styles.checkInButtonText}>
-          {tried ? "Log Another Dram" : "Check-in Dram"}
-        </Text>
-      </TouchableOpacity>
-
-      {recentCheckins.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recent Check-ins</Text>
-          {recentCheckins.map((c) => (
-            <View key={c.id} style={styles.checkinRow}>
-              <View style={styles.checkinLeft}>
-                {c.rating !== null && (
-                  <Text style={styles.checkinRating}>{c.rating.toFixed(1)}</Text>
-                )}
-                {c.notes ? (
-                  <Text style={styles.checkinNotes} numberOfLines={2}>
-                    {c.notes}
-                  </Text>
-                ) : null}
+        {/* Collection section */}
+        <View style={styles.collectionSection}>
+          {collectionLoading ? (
+            <ActivityIndicator color="#C8963E" style={{ marginVertical: 8 }} />
+          ) : collectionEntry ? (
+            <View style={styles.inCollectionCard}>
+              <View style={styles.inCollectionHeader}>
+                <View style={styles.inCollectionBadge}>
+                  <Text style={styles.inCollectionBadgeText}>In your collection</Text>
+                </View>
+                <TouchableOpacity onPress={handleRemoveFromCollection}>
+                  <Text style={styles.removeLink}>Remove</Text>
+                </TouchableOpacity>
               </View>
-              <Text style={styles.checkinDate}>
-                {new Date(c.created_at).toLocaleDateString()}
-              </Text>
+
+              {collectionEntry.opened_at ? (
+                <View style={styles.openedRow}>
+                  <Text style={styles.openedLabel}>Opened</Text>
+                  <Text style={styles.openedDate}>
+                    {new Date(collectionEntry.opened_at).toLocaleDateString()}
+                  </Text>
+                  <TouchableOpacity onPress={() => setDateSheetVisible(true)}>
+                    <Text style={styles.changeLink}>Change</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  style={styles.markOpenedBtn}
+                  onPress={() => setDateSheetVisible(true)}
+                >
+                  <Text style={styles.markOpenedBtnText}>Mark as Opened</Text>
+                </TouchableOpacity>
+              )}
             </View>
-          ))}
+          ) : (
+            <TouchableOpacity style={styles.addToCollectionBtn} onPress={handleAddToCollection}>
+              <Text style={styles.addToCollectionBtnText}>Add to Collection</Text>
+            </TouchableOpacity>
+          )}
         </View>
-      )}
-    </ScrollView>
+
+        {recentCheckins.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Recent Check-ins</Text>
+            {recentCheckins.map((c) => (
+              <View key={c.id} style={styles.checkinRow}>
+                <View style={styles.checkinLeft}>
+                  {c.rating !== null && (
+                    <Text style={styles.checkinRating}>{c.rating.toFixed(1)}</Text>
+                  )}
+                  {c.notes ? (
+                    <Text style={styles.checkinNotes} numberOfLines={2}>
+                      {c.notes}
+                    </Text>
+                  ) : null}
+                </View>
+                <Text style={styles.checkinDate}>
+                  {new Date(c.created_at).toLocaleDateString()}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
+      </ScrollView>
+
+      <OpenedDateSheet
+        visible={dateSheetVisible}
+        onConfirm={handleOpenedDateConfirm}
+        onCancel={() => setDateSheetVisible(false)}
+      />
+    </>
   );
 }
 
@@ -188,9 +302,60 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 16,
     alignItems: "center",
-    marginBottom: 32,
+    marginBottom: 12,
   },
   checkInButtonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
+
+  collectionSection: { marginHorizontal: 20, marginBottom: 28 },
+  addToCollectionBtn: {
+    borderWidth: 1.5,
+    borderColor: "#C8963E",
+    borderRadius: 14,
+    padding: 16,
+    alignItems: "center",
+  },
+  addToCollectionBtnText: { color: "#C8963E", fontSize: 15, fontWeight: "600" },
+
+  inCollectionCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#E8DDD0",
+    padding: 16,
+  },
+  inCollectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+  inCollectionBadge: {
+    backgroundColor: "#EAF5EC",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  inCollectionBadgeText: { color: "#2E7D32", fontSize: 13, fontWeight: "600" },
+  removeLink: { color: "#B8A090", fontSize: 13 },
+
+  openedRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  openedLabel: { color: "#7A5C3E", fontSize: 14 },
+  openedDate: { color: "#1A0E00", fontSize: 14, fontWeight: "600", flex: 1 },
+  changeLink: { color: "#C8963E", fontSize: 13, fontWeight: "600" },
+
+  markOpenedBtn: {
+    borderWidth: 1,
+    borderColor: "#E8DDD0",
+    borderRadius: 10,
+    padding: 12,
+    alignItems: "center",
+  },
+  markOpenedBtnText: { color: "#7A5C3E", fontSize: 14, fontWeight: "600" },
+
   section: { paddingHorizontal: 20 },
   sectionTitle: {
     fontSize: 18,

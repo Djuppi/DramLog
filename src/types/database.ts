@@ -81,6 +81,14 @@ export interface CheckinInput {
   venue?: string;
 }
 
+export interface CollectionEntry {
+  id: string;
+  user_id: string;
+  whisky_id: string;
+  opened_at: string | null;
+  added_at: string;
+}
+
 // ─── Edge function response ───────────────────────────────────────────────────
 
 export interface BarcodeResult {

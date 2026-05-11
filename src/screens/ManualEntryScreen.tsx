@@ -15,9 +15,9 @@ import {
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { createWhisky } from "../api/whiskies";
 import BottleCamera from "../components/BottleCamera";
-import { ScanStackParamList } from "../navigation/types";
+import { SearchStackParamList } from "../navigation/types";
 
-type Props = NativeStackScreenProps<ScanStackParamList, "ManualEntry">;
+type Props = NativeStackScreenProps<SearchStackParamList, "ManualEntry">;
 
 export default function ManualEntryScreen({ route, navigation }: Props) {
   const { barcode, prefill } = route.params ?? {};
