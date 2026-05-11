@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -13,9 +13,10 @@ import {
   Image,
 } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { createWhisky } from "../api/whiskies";
+import { createWhisky, searchWhiskies, findWhiskyMatch } from "../api/whiskies";
 import BottleCamera from "../components/BottleCamera";
 import { SearchStackParamList } from "../navigation/types";
+import { Whisky } from "../types/database";
 
 type Props = NativeStackScreenProps<SearchStackParamList, "ManualEntry">;
 
@@ -32,6 +33,29 @@ export default function ManualEntryScreen({ route, navigation }: Props) {
   const [imageUrl, setImageUrl] = useState("");
   const [cameraOpen, setCameraOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const [suggestions, setSuggestions] = useState<Whisky[]>([]);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+  const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (debounce.current) clearTimeout(debounce.current);
+    const term = distillery.trim();
+    if (term.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+    debounce.current = setTimeout(async () => {
+      setSuggestionsLoading(true);
+      try {
+        const results = await searchWhiskies(term);
+        setSuggestions(results);
+      } finally {
+        setSuggestionsLoading(false);
+      }
+    }, 400);
+    return () => { if (debounce.current) clearTimeout(debounce.current); };
+  }, [distillery]);
 
   async function handleSubmit() {
     if (!name.trim() || !distillery.trim()) {
@@ -58,6 +82,37 @@ export default function ManualEntryScreen({ route, navigation }: Props) {
 
     setLoading(true);
     try {
+      // Exact-match guard before creating
+      const existing = await findWhiskyMatch(name.trim(), distillery.trim());
+      if (existing) {
+        setLoading(false);
+        Alert.alert(
+          "Already in the database",
+          `"${existing.name}" by ${existing.distillery} already exists. Use the existing entry?`,
+          [
+            {
+              text: "Yes, use existing",
+              onPress: () => navigation.replace("WhiskyDetail", { whiskyId: existing.id }),
+            },
+            {
+              text: "Add anyway",
+              onPress: () => doCreate(ageNum, abvNum, bottleSizeNum),
+            },
+            { text: "Cancel", style: "cancel" },
+          ]
+        );
+        return;
+      }
+      await doCreate(ageNum, abvNum, bottleSizeNum);
+    } catch (e: unknown) {
+      Alert.alert("Error", (e as Error).message);
+      setLoading(false);
+    }
+  }
+
+  async function doCreate(ageNum?: number, abvNum?: number, bottleSizeNum?: number) {
+    setLoading(true);
+    try {
       const whisky = await createWhisky({
         name: name.trim(),
         distillery: distillery.trim(),
@@ -76,13 +131,15 @@ export default function ManualEntryScreen({ route, navigation }: Props) {
     }
   }
 
+  const showSuggestions = suggestions.length > 0 && distillery.trim().length >= 2;
+
   return (
     <>
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <ScrollView contentContainerStyle={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           {barcode && (
             <View style={styles.barcodeBadge}>
               <Text style={styles.barcodeBadgeText}>Barcode: {barcode}</Text>
@@ -95,18 +152,12 @@ export default function ManualEntryScreen({ route, navigation }: Props) {
             {imageUrl ? (
               <View style={styles.previewWrapper}>
                 <Image source={{ uri: imageUrl }} style={styles.preview} resizeMode="contain" />
-                <TouchableOpacity
-                  style={styles.retakeBtn}
-                  onPress={() => setCameraOpen(true)}
-                >
+                <TouchableOpacity style={styles.retakeBtn} onPress={() => setCameraOpen(true)}>
                   <Text style={styles.retakeBtnText}>Retake</Text>
                 </TouchableOpacity>
               </View>
             ) : (
-              <TouchableOpacity
-                style={styles.photoBtn}
-                onPress={() => setCameraOpen(true)}
-              >
+              <TouchableOpacity style={styles.photoBtn} onPress={() => setCameraOpen(true)}>
                 <Text style={styles.photoBtnIcon}>📷</Text>
                 <Text style={styles.photoBtnText}>Photograph Bottle</Text>
                 <Text style={styles.photoBtnHint}>Background will be removed automatically</Text>
@@ -116,6 +167,39 @@ export default function ManualEntryScreen({ route, navigation }: Props) {
 
           <Field label="Whisky Name *" value={name} onChange={setName} placeholder="e.g. 12 Year Old" />
           <Field label="Distillery *" value={distillery} onChange={setDistillery} placeholder="e.g. Glenfiddich" />
+
+          {/* Live duplicate suggestions */}
+          {(showSuggestions || suggestionsLoading) && (
+            <View style={styles.suggestionsCard}>
+              <View style={styles.suggestionsHeader}>
+                <Text style={styles.suggestionsTitle}>Already in the database</Text>
+                {suggestionsLoading && <ActivityIndicator size="small" color="#C8963E" />}
+              </View>
+              <Text style={styles.suggestionsHint}>
+                Tap a match to use the existing entry instead of adding a duplicate.
+              </Text>
+              {suggestions.map((w) => (
+                <TouchableOpacity
+                  key={w.id}
+                  style={styles.suggestionRow}
+                  onPress={() => navigation.replace("WhiskyDetail", { whiskyId: w.id })}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.suggestionBody}>
+                    <Text style={styles.suggestionName} numberOfLines={1}>{w.name}</Text>
+                    <Text style={styles.suggestionMeta} numberOfLines={1}>
+                      {w.distillery}
+                      {w.region ? ` · ${w.region}` : ""}
+                      {w.age ? ` · ${w.age}yr` : ""}
+                      {w.abv ? ` · ${w.abv}%` : ""}
+                    </Text>
+                  </View>
+                  <Text style={styles.suggestionArrow}>→</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+
           <Field label="Region" value={region} onChange={setRegion} placeholder="e.g. Speyside" />
           <Field label="Country" value={country} onChange={setCountry} placeholder="e.g. Scotland" />
           <Field
@@ -220,12 +304,7 @@ const styles = StyleSheet.create({
   photoBtnHint: { color: "#B8A090", fontSize: 12 },
 
   previewWrapper: { alignItems: "center", gap: 12 },
-  preview: {
-    width: 160,
-    height: 280,
-    borderRadius: 12,
-    backgroundColor: "#F5EFE6",
-  },
+  preview: { width: 160, height: 280, borderRadius: 12, backgroundColor: "#F5EFE6" },
   retakeBtn: {
     borderWidth: 1,
     borderColor: "#C8963E",
@@ -234,6 +313,34 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   retakeBtnText: { color: "#C8963E", fontSize: 14, fontWeight: "600" },
+
+  suggestionsCard: {
+    backgroundColor: "#FFFBF5",
+    borderWidth: 1.5,
+    borderColor: "#F0C060",
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 20,
+  },
+  suggestionsHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 4,
+  },
+  suggestionsTitle: { fontSize: 13, fontWeight: "700", color: "#7A5C3E" },
+  suggestionsHint: { fontSize: 12, color: "#B8A090", marginBottom: 10 },
+  suggestionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#F0E8DF",
+  },
+  suggestionBody: { flex: 1 },
+  suggestionName: { fontSize: 14, fontWeight: "600", color: "#1A0E00", marginBottom: 2 },
+  suggestionMeta: { fontSize: 12, color: "#7A5C3E" },
+  suggestionArrow: { fontSize: 16, color: "#C8963E", paddingLeft: 8 },
 
   button: {
     backgroundColor: "#C8963E",
