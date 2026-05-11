@@ -11,7 +11,7 @@ import {
   Alert,
 } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { searchWhiskies, findWhiskyMatch } from "../api/whiskies";
+import { searchWhiskies } from "../api/whiskies";
 import { supabase } from "../lib/supabase";
 import { Whisky } from "../types/database";
 import { SearchStackParamList, WhiskyPrefill } from "../navigation/types";
@@ -70,15 +70,6 @@ export default function SearchScreen({ navigation }: Props) {
       }
 
       const prefill = data ?? {};
-
-      if (prefill.name && prefill.distillery) {
-        const existing = await findWhiskyMatch(prefill.name, prefill.distillery);
-        if (existing) {
-          navigation.navigate("WhiskyDetail", { whiskyId: existing.id });
-          return;
-        }
-      }
-
       navigation.navigate("ManualEntry", { prefill });
     } catch (e: unknown) {
       Alert.alert(

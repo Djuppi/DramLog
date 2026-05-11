@@ -34,28 +34,46 @@ export default function ManualEntryScreen({ route, navigation }: Props) {
   const [cameraOpen, setCameraOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const fromScan = !!(prefill?.name && prefill?.distillery);
   const [suggestions, setSuggestions] = useState<Whisky[]>([]);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
     if (debounce.current) clearTimeout(debounce.current);
-    const term = distillery.trim();
-    if (term.length < 2) {
+    const nameTerm = name.trim();
+    const distTerm = distillery.trim();
+
+    if (nameTerm.length < 2 && distTerm.length < 2) {
       setSuggestions([]);
+      isFirstRender.current = false;
       return;
     }
+
+    const delay = isFirstRender.current ? 0 : 400;
+    isFirstRender.current = false;
+
     debounce.current = setTimeout(async () => {
       setSuggestionsLoading(true);
       try {
-        const results = await searchWhiskies(term);
-        setSuggestions(results);
+        const queries: Promise<Whisky[]>[] = [];
+        if (nameTerm.length >= 2) queries.push(searchWhiskies(nameTerm, 10));
+        if (distTerm.length >= 2 && distTerm !== nameTerm) queries.push(searchWhiskies(distTerm, 10));
+        const batches = await Promise.all(queries);
+        const seen = new Set<string>();
+        const merged = batches.flat().filter((w) => {
+          if (seen.has(w.id)) return false;
+          seen.add(w.id);
+          return true;
+        });
+        setSuggestions(merged);
       } finally {
         setSuggestionsLoading(false);
       }
-    }, 400);
+    }, delay);
     return () => { if (debounce.current) clearTimeout(debounce.current); };
-  }, [distillery]);
+  }, [name, distillery]);
 
   async function handleSubmit() {
     if (!name.trim() || !distillery.trim()) {
@@ -131,7 +149,8 @@ export default function ManualEntryScreen({ route, navigation }: Props) {
     }
   }
 
-  const showSuggestions = suggestions.length > 0 && distillery.trim().length >= 2;
+  const showSuggestions =
+    suggestions.length > 0 && (name.trim().length >= 2 || distillery.trim().length >= 2);
 
   return (
     <>
@@ -140,6 +159,15 @@ export default function ManualEntryScreen({ route, navigation }: Props) {
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          {fromScan && (
+            <View style={styles.scanBanner}>
+              <Text style={styles.scanBannerTitle}>AI-detected — please review</Text>
+              <Text style={styles.scanBannerBody}>
+                Label scanning can misread names. Check the details below and use an existing entry if one matches.
+              </Text>
+            </View>
+          )}
+
           {barcode && (
             <View style={styles.barcodeBadge}>
               <Text style={styles.barcodeBadgeText}>Barcode: {barcode}</Text>
@@ -167,12 +195,13 @@ export default function ManualEntryScreen({ route, navigation }: Props) {
 
           <Field label="Whisky Name *" value={name} onChange={setName} placeholder="e.g. 12 Year Old" />
           <Field label="Distillery *" value={distillery} onChange={setDistillery} placeholder="e.g. Glenfiddich" />
-
-          {/* Live duplicate suggestions */}
+          {/* Live duplicate suggestions — triggered by name or distillery */}
           {(showSuggestions || suggestionsLoading) && (
             <View style={styles.suggestionsCard}>
               <View style={styles.suggestionsHeader}>
-                <Text style={styles.suggestionsTitle}>Already in the database</Text>
+                <Text style={styles.suggestionsTitle}>
+                {fromScan ? "Is this your bottle?" : "Already in the database"}
+              </Text>
                 {suggestionsLoading && <ActivityIndicator size="small" color="#C8963E" />}
               </View>
               <Text style={styles.suggestionsHint}>
@@ -281,6 +310,17 @@ function Field({
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FAF8F5" },
   content: { padding: 24, paddingBottom: 48 },
+  scanBanner: {
+    backgroundColor: "#FFF8EC",
+    borderWidth: 1.5,
+    borderColor: "#F0C060",
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 20,
+  },
+  scanBannerTitle: { fontSize: 13, fontWeight: "700", color: "#7A5C3E", marginBottom: 4 },
+  scanBannerBody: { fontSize: 12, color: "#B8A090", lineHeight: 17 },
+
   barcodeBadge: {
     backgroundColor: "#F5EFE6",
     borderRadius: 8,
