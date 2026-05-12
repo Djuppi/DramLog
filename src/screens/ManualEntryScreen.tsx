@@ -158,12 +158,18 @@ export default function ManualEntryScreen({ route, navigation }: Props) {
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+        >
           {fromScan && (
             <View style={styles.scanBanner}>
-              <Text style={styles.scanBannerTitle}>AI-detected — please review</Text>
+              <Text style={styles.scanBannerTitle}>
+                AI-detected — please review
+              </Text>
               <Text style={styles.scanBannerBody}>
-                Label scanning can misread names. Check the details below and use an existing entry if one matches.
+                Label scanning can misread names. Check the details below and
+                use an existing entry if one matches.
               </Text>
             </View>
           )}
@@ -179,58 +185,141 @@ export default function ManualEntryScreen({ route, navigation }: Props) {
             <Text style={fieldStyles.label}>Bottle Photo</Text>
             {imageUrl ? (
               <View style={styles.previewWrapper}>
-                <Image source={{ uri: imageUrl }} style={styles.preview} resizeMode="contain" />
-                <TouchableOpacity style={styles.retakeBtn} onPress={() => setCameraOpen(true)}>
+                <Image
+                  source={{ uri: imageUrl }}
+                  style={styles.preview}
+                  resizeMode="contain"
+                />
+                <TouchableOpacity
+                  style={styles.retakeBtn}
+                  onPress={() => setCameraOpen(true)}
+                >
                   <Text style={styles.retakeBtnText}>Retake</Text>
                 </TouchableOpacity>
               </View>
             ) : (
-              <TouchableOpacity style={styles.photoBtn} onPress={() => setCameraOpen(true)}>
+              <TouchableOpacity
+                style={styles.photoBtn}
+                onPress={() => setCameraOpen(true)}
+              >
                 <Text style={styles.photoBtnIcon}>📷</Text>
                 <Text style={styles.photoBtnText}>Photograph Bottle</Text>
-                <Text style={styles.photoBtnHint}>Background will be removed automatically</Text>
+                <Text style={styles.photoBtnHint}>
+                  Background will be removed automatically
+                </Text>
               </TouchableOpacity>
             )}
           </View>
 
-          <Field label="Whisky Name *" value={name} onChange={setName} placeholder="e.g. 12 Year Old" />
-          <Field label="Distillery *" value={distillery} onChange={setDistillery} placeholder="e.g. Glenfiddich" />
-          {/* Live duplicate suggestions — triggered by name or distillery */}
-          {(showSuggestions || suggestionsLoading) && (
-            <View style={styles.suggestionsCard}>
-              <View style={styles.suggestionsHeader}>
-                <Text style={styles.suggestionsTitle}>
-                {fromScan ? "Is this your bottle?" : "Already in the database"}
-              </Text>
-                {suggestionsLoading && <ActivityIndicator size="small" color="#C8963E" />}
+          <Field
+            label="Whisky Name *"
+            value={name}
+            onChange={setName}
+            placeholder="e.g. 12 Year Old"
+          />
+          {(showSuggestions || suggestionsLoading) && name.trim().length >= 2 && (
+              <View style={styles.suggestionsCard}>
+                <View style={styles.suggestionsHeader}>
+                  <Text style={styles.suggestionsTitle}>
+                    {fromScan
+                      ? "Is this your bottle?"
+                      : "Already in the database"}
+                  </Text>
+                  {suggestionsLoading && (
+                    <ActivityIndicator size="small" color="#C8963E" />
+                  )}
+                </View>
+                <Text style={styles.suggestionsHint}>
+                  Tap a match to use the existing entry instead of adding a
+                  duplicate.
+                </Text>
+                {suggestions.map((w) => (
+                  <TouchableOpacity
+                    key={w.id}
+                    style={styles.suggestionRow}
+                    onPress={() =>
+                      navigation.replace("WhiskyDetail", { whiskyId: w.id })
+                    }
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.suggestionBody}>
+                      <Text style={styles.suggestionName} numberOfLines={1}>
+                        {w.name}
+                      </Text>
+                      <Text style={styles.suggestionMeta} numberOfLines={1}>
+                        {w.distillery}
+                        {w.region ? ` · ${w.region}` : ""}
+                        {w.age ? ` · ${w.age}yr` : ""}
+                        {w.abv ? ` · ${w.abv}%` : ""}
+                      </Text>
+                    </View>
+                    <Text style={styles.suggestionArrow}>→</Text>
+                  </TouchableOpacity>
+                ))}
               </View>
-              <Text style={styles.suggestionsHint}>
-                Tap a match to use the existing entry instead of adding a duplicate.
-              </Text>
-              {suggestions.map((w) => (
-                <TouchableOpacity
-                  key={w.id}
-                  style={styles.suggestionRow}
-                  onPress={() => navigation.replace("WhiskyDetail", { whiskyId: w.id })}
-                  activeOpacity={0.7}
-                >
-                  <View style={styles.suggestionBody}>
-                    <Text style={styles.suggestionName} numberOfLines={1}>{w.name}</Text>
-                    <Text style={styles.suggestionMeta} numberOfLines={1}>
-                      {w.distillery}
-                      {w.region ? ` · ${w.region}` : ""}
-                      {w.age ? ` · ${w.age}yr` : ""}
-                      {w.abv ? ` · ${w.abv}%` : ""}
-                    </Text>
-                  </View>
-                  <Text style={styles.suggestionArrow}>→</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
+            )}
+          <Field
+            label="Distillery *"
+            value={distillery}
+            onChange={setDistillery}
+            placeholder="e.g. Glenfiddich"
+          />
+          {/* Live duplicate suggestions — triggered by name or distillery */}
+          {(showSuggestions || suggestionsLoading) &&
+            distillery.trim().length >= 2 && (
+              <View style={styles.suggestionsCard}>
+                <View style={styles.suggestionsHeader}>
+                  <Text style={styles.suggestionsTitle}>
+                    {fromScan
+                      ? "Is this your bottle?"
+                      : "Already in the database"}
+                  </Text>
+                  {suggestionsLoading && (
+                    <ActivityIndicator size="small" color="#C8963E" />
+                  )}
+                </View>
+                <Text style={styles.suggestionsHint}>
+                  Tap a match to use the existing entry instead of adding a
+                  duplicate.
+                </Text>
+                {suggestions.map((w) => (
+                  <TouchableOpacity
+                    key={w.id}
+                    style={styles.suggestionRow}
+                    onPress={() =>
+                      navigation.replace("WhiskyDetail", { whiskyId: w.id })
+                    }
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.suggestionBody}>
+                      <Text style={styles.suggestionName} numberOfLines={1}>
+                        {w.name}
+                      </Text>
+                      <Text style={styles.suggestionMeta} numberOfLines={1}>
+                        {w.distillery}
+                        {w.region ? ` · ${w.region}` : ""}
+                        {w.age ? ` · ${w.age}yr` : ""}
+                        {w.abv ? ` · ${w.abv}%` : ""}
+                      </Text>
+                    </View>
+                    <Text style={styles.suggestionArrow}>→</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
 
-          <Field label="Region" value={region} onChange={setRegion} placeholder="e.g. Speyside" />
-          <Field label="Country" value={country} onChange={setCountry} placeholder="e.g. Scotland" />
+          <Field
+            label="Region"
+            value={region}
+            onChange={setRegion}
+            placeholder="e.g. Speyside"
+          />
+          <Field
+            label="Country"
+            value={country}
+            onChange={setCountry}
+            placeholder="e.g. Scotland"
+          />
           <Field
             label="Age (years)"
             value={age}
