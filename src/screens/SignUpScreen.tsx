@@ -18,13 +18,14 @@ type Props = NativeStackScreenProps<AuthStackParamList, "SignUp">;
 
 export default function SignUpScreen({ navigation }: Props) {
   const { signUp } = useAuth();
+  const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSignUp() {
-    if (!email || !password) {
+    if (!displayName.trim() || !email || !password) {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
@@ -38,7 +39,7 @@ export default function SignUpScreen({ navigation }: Props) {
     }
     setLoading(true);
     try {
-      await signUp(email.trim(), password);
+      await signUp(email.trim(), password, displayName.trim());
       Alert.alert(
         "Check your email",
         "We sent you a confirmation link. Click it to activate your account.",
@@ -59,6 +60,14 @@ export default function SignUpScreen({ navigation }: Props) {
       <View style={styles.inner}>
         <Text style={styles.title}>Create Account</Text>
 
+        <TextInput
+          style={styles.input}
+          placeholder="Display name"
+          placeholderTextColor="#B8A090"
+          autoCapitalize="words"
+          value={displayName}
+          onChangeText={setDisplayName}
+        />
         <TextInput
           style={styles.input}
           placeholder="Email"

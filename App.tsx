@@ -1,5 +1,5 @@
 import "react-native-gesture-handler";
-import React from "react";
+import React, { useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import { ActivityIndicator, View } from "react-native";
@@ -7,13 +7,17 @@ import { AuthProvider, useAuth } from "./src/context/AuthContext";
 import AppNavigator from "./src/navigation/AppNavigator";
 import AuthNavigator from "./src/navigation/AuthNavigator";
 import AgeGateScreen from "./src/screens/AgeGateScreen";
+import OnboardingScreen from "./src/screens/OnboardingScreen";
 import { useAgeGate } from "./src/hooks/useAgeGate";
+import { useOnboarding } from "./src/hooks/useOnboarding";
 
 function RootNavigator() {
   const { session, loading } = useAuth();
   const { verified, verify } = useAgeGate();
+  const { onboardingDone, completeOnboarding } = useOnboarding();
+  const [startOnSearch, setStartOnSearch] = useState(false);
 
-  if (loading || verified === null) {
+  if (loading || verified === null || onboardingDone === null) {
     return (
       <View style={{ flex: 1, backgroundColor: "#FAF8F5", alignItems: "center", justifyContent: "center" }}>
         <ActivityIndicator color="#c8963e" size="large" />
@@ -25,7 +29,22 @@ function RootNavigator() {
     return <AgeGateScreen onVerified={verify} />;
   }
 
-  return session ? <AppNavigator /> : <AuthNavigator />;
+  if (!session) {
+    return <AuthNavigator />;
+  }
+
+  if (!onboardingDone) {
+    return (
+      <OnboardingScreen
+        onDone={async () => {
+          setStartOnSearch(true);
+          await completeOnboarding();
+        }}
+      />
+    );
+  }
+
+  return <AppNavigator initialTab={startOnSearch ? "SearchTab" : "FeedTab"} />;
 }
 
 export default function App() {

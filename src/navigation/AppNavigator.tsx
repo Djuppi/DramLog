@@ -75,9 +75,10 @@ function TabIcon({ label, focused }: { label: string; focused: boolean }) {
   );
 }
 
-export default function AppNavigator() {
+export default function AppNavigator({ initialTab = "FeedTab" }: { initialTab?: keyof AppTabParamList }) {
   return (
     <Tab.Navigator
+      initialRouteName={initialTab}
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarStyle: {

@@ -90,6 +90,24 @@ export interface CollectionEntry {
   added_at: string;
 }
 
+export interface Profile {
+  id: string;
+  display_name: string | null;
+}
+
+export interface Like {
+  id: string;
+  user_id: string;
+  checkin_id: string;
+  created_at: string;
+}
+
+export interface SocialCheckin extends CheckinWithWhisky {
+  profile: Pick<Profile, "display_name"> | null;
+  like_count: number;
+  user_has_liked: boolean;
+}
+
 // ─── Edge function response ───────────────────────────────────────────────────
 
 export interface BarcodeResult {

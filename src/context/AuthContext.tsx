@@ -7,12 +7,14 @@ import { supabase } from "../lib/supabase";
 interface AuthContextValue {
   session: Session | null;
   user: User | null;
+  displayName: string | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, displayName?: string) => Promise<void>;
   signOut: () => Promise<void>;
   signInWithApple: () => Promise<void>;
   signInWithGoogle: (idToken: string) => Promise<void>;
+  updateDisplayName: (name: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -38,8 +40,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error;
   }
 
-  async function signUp(email: string, password: string) {
-    const { error } = await supabase.auth.signUp({ email, password });
+  async function signUp(email: string, password: string, displayName?: string) {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: displayName ? { data: { display_name: displayName } } : undefined,
+    });
+    if (error) throw error;
+  }
+
+  async function updateDisplayName(name: string) {
+    const { error } = await supabase.auth.updateUser({ data: { display_name: name } });
     if (error) throw error;
   }
 
@@ -66,6 +77,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     if (error) throw error;
+
+    // Apple only sends the full name on first sign-in; store it immediately
+    const { givenName, familyName } = credential.fullName ?? {};
+    const fullName = [givenName, familyName].filter(Boolean).join(" ");
+    if (fullName) {
+      await supabase.auth.updateUser({ data: { display_name: fullName } });
+    }
   }
 
   async function signInWithGoogle(idToken: string) {
@@ -76,9 +94,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error;
   }
 
+  const user = session?.user ?? null;
+  const displayName =
+    user?.user_metadata?.display_name ??
+    user?.user_metadata?.full_name ??
+    user?.user_metadata?.name ??
+    null;
+
   return (
     <AuthContext.Provider
-      value={{ session, user: session?.user ?? null, loading, signIn, signUp, signOut, signInWithApple, signInWithGoogle }}
+      value={{ session, user, displayName, loading, signIn, signUp, signOut, signInWithApple, signInWithGoogle, updateDisplayName }}
     >
       {children}
     </AuthContext.Provider>

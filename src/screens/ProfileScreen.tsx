@@ -8,6 +8,7 @@ import {
   Alert,
   ActivityIndicator,
   Image,
+  TextInput,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -22,7 +23,10 @@ import MarkBadge from "../components/MarkBadge";
 type Props = NativeStackScreenProps<ProfileStackParamList, "Profile">;
 
 export default function ProfileScreen({ navigation }: Props) {
-  const { user, signOut } = useAuth();
+  const { user, displayName, signOut, updateDisplayName } = useAuth();
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+  const [savingName, setSavingName] = useState(false);
   const [stats, setStats] = useState<{
     totalCheckins: number;
     uniqueWhiskies: number;
@@ -72,6 +76,20 @@ export default function ProfileScreen({ navigation }: Props) {
     [markStats]
   );
 
+  async function handleSaveName() {
+    const trimmed = nameInput.trim();
+    if (!trimmed) return;
+    setSavingName(true);
+    try {
+      await updateDisplayName(trimmed);
+      setEditingName(false);
+    } catch (e: unknown) {
+      Alert.alert("Error", (e as Error).message);
+    } finally {
+      setSavingName(false);
+    }
+  }
+
   async function handleSignOut() {
     Alert.alert("Sign Out", "Are you sure?", [
       { text: "Cancel", style: "cancel" },
@@ -93,9 +111,42 @@ export default function ProfileScreen({ navigation }: Props) {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.avatar}>
         <Text style={styles.avatarText}>
-          {user?.email?.[0]?.toUpperCase() ?? "?"}
+          {(displayName ?? user?.email)?.[0]?.toUpperCase() ?? "?"}
         </Text>
       </View>
+
+      {editingName ? (
+        <View style={styles.nameEditRow}>
+          <TextInput
+            style={styles.nameInput}
+            value={nameInput}
+            onChangeText={setNameInput}
+            autoFocus
+            autoCapitalize="words"
+            returnKeyType="done"
+            onSubmitEditing={handleSaveName}
+          />
+          <TouchableOpacity onPress={handleSaveName} disabled={savingName} style={styles.nameSaveButton}>
+            {savingName ? (
+              <ActivityIndicator color="#fff" size="small" />
+            ) : (
+              <Text style={styles.nameSaveText}>Save</Text>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setEditingName(false)} style={styles.nameCancelButton}>
+            <Text style={styles.nameCancelText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <TouchableOpacity
+          style={styles.nameRow}
+          onPress={() => { setNameInput(displayName ?? ""); setEditingName(true); }}
+        >
+          <Text style={styles.displayName}>{displayName ?? "Set display name"}</Text>
+          <Text style={styles.nameEditHint}> ✎</Text>
+        </TouchableOpacity>
+      )}
+
       <Text style={styles.email}>{user?.email}</Text>
 
       {loading ? (
@@ -242,7 +293,31 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   avatarText: { fontSize: 36, fontWeight: "800", color: "#fff" },
-  email: { color: "#7A5C3E", fontSize: 15, marginBottom: 28 },
+  nameRow: { flexDirection: "row", alignItems: "center", marginBottom: 4 },
+  displayName: { fontSize: 18, fontWeight: "700", color: "#1A0E00" },
+  nameEditHint: { fontSize: 14, color: "#B8A090" },
+  nameEditRow: { flexDirection: "row", alignItems: "center", marginBottom: 4, gap: 8 },
+  nameInput: {
+    backgroundColor: "#FFFFFF",
+    borderColor: "#E8DDD0",
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 16,
+    color: "#1A0E00",
+    minWidth: 160,
+  },
+  nameSaveButton: {
+    backgroundColor: "#C8963E",
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  nameSaveText: { color: "#fff", fontWeight: "700", fontSize: 14 },
+  nameCancelButton: { paddingHorizontal: 8, paddingVertical: 8 },
+  nameCancelText: { color: "#7A5C3E", fontSize: 14 },
+  email: { color: "#7A5C3E", fontSize: 13, marginBottom: 28 },
   loader: { marginVertical: 24 },
   statsGrid: {
     flexDirection: "row",
